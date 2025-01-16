@@ -40,7 +40,6 @@ if (container) {
     <QueryClientProvider client={queryClient}>
       <MetronicI18nProvider>
           <AuthProvider>
-              <h1>Hello, React!</h1>
               <AppRoutes/>
           </AuthProvider>
       </MetronicI18nProvider>
