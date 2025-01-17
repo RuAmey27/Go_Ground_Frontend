@@ -9,7 +9,7 @@ const mockFAQs = [
 ];
 
 export const FAQPage: React.FC = () => {
-  const [faqs, setFaqs] = useState(mockFAQs);
+  const [faqs] = useState(mockFAQs);
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [search, setSearch] = useState("");
@@ -31,13 +31,13 @@ export const FAQPage: React.FC = () => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setSearch(e.target.value);
 
-  const toggleActiveStatus = (id: number) => {
-    setFaqs(
-      faqs.map((faq) =>
-        faq.id === id ? { ...faq, active: !faq.active } : faq
-      )
-    );
-  };
+  // const toggleActiveStatus = (id: number) => {
+  //   setFaqs(
+  //     faqs.map((faq) =>
+  //       faq.id === id ? { ...faq, active: !faq.active } : faq
+  //     )
+  //   );
+  // };
 
   return (
     <div className="card">

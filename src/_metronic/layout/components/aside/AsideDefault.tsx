@@ -2,7 +2,7 @@
 
 import {FC} from 'react'
 import {useLayout} from '../../core'
-import {KTIcon} from '../../../helpers'
+//import {KTIcon} from '../../../helpers'
 import {AsideMenu} from './AsideMenu'
 import {AsideToolbar} from './AsideToolbar'
 

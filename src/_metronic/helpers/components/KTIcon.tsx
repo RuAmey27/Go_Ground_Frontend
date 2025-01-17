@@ -16,7 +16,7 @@ const KTIcon: React.FC<Props> = ({className = '', iconType, iconName}) => {
   return (
     <i className={`ki-${iconType} ki-${iconName}${className && ' ' + className}`}>
       {iconType === 'duotone' &&
-        [...Array(icons[iconName])].map((e, i) => {
+        [...Array(icons[iconName])].map((i) => {
           return (
             <span
               key={`${iconType}-${iconName}-${className}-path-${i + 1}`}

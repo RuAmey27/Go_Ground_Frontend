@@ -4,7 +4,7 @@ import axios from "axios";
 import AddRoute from "./AddRouteModal";
 import DeleteModal from "./DeleteModal";
 import ViewEditRouteModal from "./ViewEditRouteModal";
-import DriverDetailsModal from "./DriverDetailsModal";
+// import DriverDetailsModal from "./DriverDetailsModal";
 const API_URL = import.meta.env.VITE_APP_API_URL;
 // Interface for Driver
 interface RouteInterface {
@@ -34,7 +34,7 @@ export const RouteDetail: React.FC = () => {
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [search, setSearch] = useState("");
   const [showAddERouteModal, setShowAddRouteModal] = useState(false);
-  const [status, setStatus] = useState("");
+  const [status] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedRouteId, setSelectedRouteId] = useState<number | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<RouteInterface | null>(null);

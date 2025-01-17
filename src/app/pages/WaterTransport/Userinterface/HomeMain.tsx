@@ -1,12 +1,12 @@
-import React from "react";
+// import React from "react";
 import { useNavigate } from "react-router-dom";
-import Search from "./Search";
+// import Search from "./Search";
 const HomeMain = () => {
   const navigate = useNavigate();
 
-  const handleSearch = () => {
-    navigate("/Search");
-  };
+  // const handleSearch = () => {
+  //   navigate("/Search");
+  // };
 
   return (
     <div className="container mt-4">

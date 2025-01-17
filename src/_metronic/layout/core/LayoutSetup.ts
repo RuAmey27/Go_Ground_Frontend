@@ -8,7 +8,7 @@ import {
   ILayoutCSSClasses,
   ILayoutCSSVariables,
   ILayoutHTMLAttributes,
-  IToolbar,
+  //IToolbar,
 } from "./LayoutModels";
 import { DefaultLayoutConfig } from "./DefaultLayoutConfig";
 
@@ -119,39 +119,39 @@ export class LayoutSetup {
     }
   }
 
-  private static initToolbar(config: IToolbar): void {
-    if (!config.display) {
-      return;
-    }
-
-    document.body.classList.add("toolbar-enabled");
-    LayoutSetup.classes.toolbarContainer.push(
-      config.width === "fluid" ? "container-fluid" : "container"
-    );
-
-    if (config.fixed.desktop) {
-      document.body.classList.add("toolbar-fixed");
-    }
-
-    if (config.fixed.tabletAndMobileMode) {
-      document.body.classList.add("toolbar-tablet-and-mobile-fixed");
-    }
-
-    // Height setup
-    const type = config.layout;
-    const typeOptions = config.layouts[type];
-    if (typeOptions) {
-      let bodyStyles: string = "";
-      if (typeOptions.height) {
-        bodyStyles += ` --bs-toolbar-height: ${typeOptions.height};`;
-      }
-
-      if (typeOptions.heightAndTabletMobileMode) {
-        bodyStyles += ` --bs-toolbar-height-tablet-and-mobile: ${typeOptions.heightAndTabletMobileMode};`;
-      }
-      document.body.setAttribute("style", bodyStyles);
-    }
-  }
+  // private static initToolbar(config: IToolbar): void {
+  //   if (!config.display) {
+  //     return;
+  //   }
+  //
+  //   document.body.classList.add("toolbar-enabled");
+  //   LayoutSetup.classes.toolbarContainer.push(
+  //     config.width === "fluid" ? "container-fluid" : "container"
+  //   );
+  //
+  //   if (config.fixed.desktop) {
+  //     document.body.classList.add("toolbar-fixed");
+  //   }
+  //
+  //   if (config.fixed.tabletAndMobileMode) {
+  //     document.body.classList.add("toolbar-tablet-and-mobile-fixed");
+  //   }
+  //
+  //   // Height setup
+  //   const type = config.layout;
+  //   const typeOptions = config.layouts[type];
+  //   if (typeOptions) {
+  //     let bodyStyles: string = "";
+  //     if (typeOptions.height) {
+  //       bodyStyles += ` --bs-toolbar-height: ${typeOptions.height};`;
+  //     }
+  //
+  //     if (typeOptions.heightAndTabletMobileMode) {
+  //       bodyStyles += ` --bs-toolbar-height-tablet-and-mobile: ${typeOptions.heightAndTabletMobileMode};`;
+  //     }
+  //     document.body.setAttribute("style", bodyStyles);
+  //   }
+  // }
 
   private static initContent(config: IContent): void {
     LayoutSetup.classes.contentContainer.push(
@@ -178,17 +178,17 @@ export class LayoutSetup {
     }
   }
 
-  private static initAsideMenu(config: IAside): void {
-    // if (Theme::getOption('layout', 'aside/menu') === 'documentation') {
-    // 	self::$menu = new Menu( Theme::getOption('menu', 'documentation'), Theme::getPagePath() );
-    // } else {
-    // 	self::$menu = new Menu( Theme::getOption('menu', 'main'), Theme::getPagePath() );
-    // }
-    // if (Theme::getOption('layout', 'aside/menu-icons-display') === false) {
-    // 	self::$menu->displayIcons(false);
-    // }
-    // self::$menu->setIconType(Theme::getOption('layout', 'aside/menu-icon'));
-  }
+  // private static initAsideMenu(): void {
+  //   // if (Theme::getOption('layout', 'aside/menu') === 'documentation') {
+  //   // 	self::$menu = new Menu( Theme::getOption('menu', 'documentation'), Theme::getPagePath() );
+  //   // } else {
+  //   // 	self::$menu = new Menu( Theme::getOption('menu', 'main'), Theme::getPagePath() );
+  //   // }
+  //   // if (Theme::getOption('layout', 'aside/menu-icons-display') === false) {
+  //   // 	self::$menu->displayIcons(false);
+  //   // }
+  //   // self::$menu->setIconType(Theme::getOption('layout', 'aside/menu-icon'));
+  // }
 
   // private static initSidebar(sidebarConfig: ISidebarConfig): void {
   //   // / Set Sidebar enabled class
@@ -228,7 +228,7 @@ export class LayoutSetup {
     LayoutSetup.initContent(config.content);
     LayoutSetup.initAside(config.aside);
     LayoutSetup.initFooter(config.footer);
-    LayoutSetup.initAsideMenu(config.aside);
+   // LayoutSetup.initAsideMenu(config.aside);
   }
 
   public static updatePartialConfig(fieldsToUpdate: Partial<ILayout>): ILayout {

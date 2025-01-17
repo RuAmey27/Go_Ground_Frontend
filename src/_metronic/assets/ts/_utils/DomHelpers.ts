@@ -66,9 +66,9 @@ function getElementActualHeight(el: HTMLElement) {
   return getElementActualCss(el, 'height', false)
 }
 
-function getElementActualWidth(el: HTMLElement, cache?: boolean) {
-  return getElementActualCss(el, 'width', false)
-}
+// function getElementActualWidth(el: HTMLElement, cache?: boolean) {
+//   return getElementActualCss(el, 'width', false)
+// }
 
 function getElementIndex(element: HTMLElement) {
   if (element.parentNode) {
@@ -454,7 +454,7 @@ export {
   getCSSVariableValue,
   getElementActualCss,
   getElementActualHeight,
-  getElementActualWidth,
+  //getElementActualWidth,
   getElementIndex,
   getElementMatches,
   getElementOffset,

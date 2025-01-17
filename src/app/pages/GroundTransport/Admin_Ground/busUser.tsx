@@ -15,8 +15,8 @@ export const BusUserPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [search, setSearch] = useState("");
-  const [showAddUserModal, setShowAddUserModal] = useState(false);
-  const [status, setStatus] = useState("");
+  // const [showAddUserModal, setShowAddUserModal] = useState(false);
+  // const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
 
   // Fetch users from API
@@ -62,18 +62,18 @@ export const BusUserPage: React.FC = () => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setSearch(e.target.value);
 
-  const toggleActiveStatus = (id: number) => {
-    setUsers(
-      users.map((user) =>
-        user.id === id ? { ...user, active: !user.active } : user
-      )
-    );
-  };
+  // const toggleActiveStatus = (id: number) => {
+  //   setUsers(
+  //     users.map((user) =>
+  //       user.id === id ? { ...user, active: !user.active } : user
+  //     )
+  //   );
+  // };
 
-  const handleAddUser = (newUser: User) => {
-    const newUserWithId = { ...newUser, id: users.length + 1 };
-    setUsers([...users, newUserWithId]);
-  };
+  // const handleAddUser = (newUser: User) => {
+  //   const newUserWithId = { ...newUser, id: users.length + 1 };
+  //   setUsers([...users, newUserWithId]);
+  // };
 
   if (loading) {
     return <div>Loading...</div>;

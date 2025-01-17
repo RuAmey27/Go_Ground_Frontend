@@ -11,10 +11,10 @@ const mockBusRevenue = [
 ];
 
 export const BusRevenuePage: React.FC = () => {
-  const [revenue, setRevenue] = useState(mockBusRevenue);
+  const [revenue] = useState(mockBusRevenue);
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(5);
-  const [search, setSearch] = useState("");
+  const [search] = useState("");
   const [status, setStatus] = useState("");
   const [showAddRevenueModal, setShowAddRevenueModal] = useState(false);
 
@@ -32,7 +32,7 @@ export const BusRevenuePage: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value);
+  // const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => setStatus(e.target.value);
 

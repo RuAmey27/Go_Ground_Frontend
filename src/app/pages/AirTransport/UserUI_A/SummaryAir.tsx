@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { FaPhone, FaCreditCard, FaWallet } from "react-icons/fa";
+import {  FaCreditCard, FaWallet } from "react-icons/fa";
 
 const SummaryAir: React.FC = () => {
   const location = useLocation();

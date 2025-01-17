@@ -4,7 +4,7 @@ import {
   EventHandlerUtil,
   getUniqueIdWithPrefix,
   getAttributeValueByBreakpoint,
-} from '../_utils/index'
+} from '../_utils'
 
 export interface FeedbackOptions {
   width?: number
@@ -109,9 +109,9 @@ class FeedbackComponent {
     return this.isShown
   }
 
-  public getElement = () => {
-    return this.element
-  }
+  // public getElement = () => {
+  //   return this.element
+  // }
 
   // Event API
   public on = (name: string, handler: Function) => {
@@ -130,23 +130,23 @@ class FeedbackComponent {
     return EventHandlerUtil.trigger(this.element, name, event)
   }
 
-  // Create Instances
-  public static createInstances(selector: string) {
-    throw new Error('not implemented')
-  }
-
-  // Static methods
-  public static hasInstace(element: HTMLElement) {
-    throw new Error('not implemented')
-  }
-
-  public static getInstance(element: HTMLElement) {
-    throw new Error('not implemented')
-  }
-
-  public static bootstrap(attr: string = '[data-Feedback]') {
-    throw new Error('not implemented')
-  }
+  // // Create Instances
+  // public static createInstances(selector: string) {
+  //   throw new Error('not implemented')
+  // }
+  //
+  // // Static methods
+  // public static hasInstace(element: HTMLElement) {
+  //   throw new Error('not implemented')
+  // }
+  //
+  // public static getInstance(element: HTMLElement) {
+  //   throw new Error('not implemented')
+  // }
+  //
+  // public static bootstrap(attr: string = '[data-Feedback]') {
+  //   throw new Error('not implemented')
+  // }
 }
 
 export {FeedbackComponent, defaultFeedbackOptions}
