@@ -151,7 +151,7 @@ const AddVehicle: React.FC<AddVehicleProps> = ({ onClose, onAdd }) => {
       console.log(updatedVehicle);
       // Now fetch the vehicle ID from the backend after the vehicle is added
       const res = await axios.post(
-        "${API_URL}/admin/vehicle/add",
+        `${API_URL}/admin/vehicle/add`,
         updatedVehicle,
         { withCredentials: true }
       );
