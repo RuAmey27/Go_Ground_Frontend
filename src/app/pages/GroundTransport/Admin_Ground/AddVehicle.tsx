@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-const API_URL = import.meta.env.VITE_APP_API_URL
 
 interface Route {
   id: number;
@@ -16,41 +15,51 @@ interface Driver {
   status: string;
 }
 
-interface Vehicle {
+interface VehicleWithDriver {
   name: string;
   type: string;
   status: string;
   pricePerKm: number;
-  driverId: number;
-  routeId: number;
+  driver: Driver;
+  route: Route;
+}
+
+interface VehicleWithoutDriver {
+  name: string;
+  type: string;
+  status: string;
+  pricePerKm: number;
+  driverId: string;
+  routeId: string;
 }
 
 interface AddVehicleProps {
   onClose: () => void;
-  onAdd: (vehicle: Vehicle) => void;
+  onAdd: (vehicle: VehicleWithDriver | VehicleWithoutDriver) => void;
 }
 
 const AddVehicle: React.FC<AddVehicleProps> = ({ onClose, onAdd }) => {
-  const [vehicle, setVehicle] = useState<Vehicle>({
+  const [vehicle, setVehicle] = useState<VehicleWithoutDriver>({
     name: "",
     type: "",
     status: "",
     pricePerKm: 0,
-    driverId: 0,
-    routeId: 0,
+    driverId: "",
+    routeId: "",
   });
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [routes, setRoutes] = useState<Route[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [hasDriver, setHasDriver] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchDriversAndRoutes = async () => {
       try {
         const [driversRes, routesRes] = await Promise.all([
-          axios.get<Driver[]>(`${API_URL}/admin/driver/all`, {
+          axios.get<Driver[]>("http://localhost:8080/admin/driver/all", {
             withCredentials: true,
           }),
-          axios.get<Route[]>(`${API_URL}/admin/routes/get`, {
+          axios.get<Route[]>("http://localhost:8080/admin/routes/get", {
             withCredentials: true,
           }),
         ]);
@@ -67,14 +76,15 @@ const AddVehicle: React.FC<AddVehicleProps> = ({ onClose, onAdd }) => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setVehicle((prev) => ({
-      ...prev,
-      [name]: name === "pricePerKm" ? +value : value, // Ensure proper type conversion for pricePerKm
-    }));
-    setErrors({ ...errors, [name]: "" }); // Clear any validation errors for the field
+    const updatedVehicle = {
+      ...vehicle,
+      [name]: name === "pricePerKm" ? +value : value,
+    };
+    setVehicle(updatedVehicle);
+    setErrors({ ...errors, [name]: "" });
   };
 
-  const handleAddVehicle = (e: React.FormEvent) => {
+  const handleAddVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const newErrors: { [key: string]: string } = {};
@@ -83,27 +93,75 @@ const AddVehicle: React.FC<AddVehicleProps> = ({ onClose, onAdd }) => {
     if (!vehicle.status.trim()) newErrors.status = "Vehicle status is required.";
     if (vehicle.pricePerKm <= 0)
       newErrors.pricePerKm = "Price per km must be greater than zero.";
-    if (!vehicle.driverId) newErrors.driverId = "Please select a driver.";
     if (!vehicle.routeId) newErrors.routeId = "Please select a route.";
+
+    if (hasDriver && !vehicle.driverId) {
+      newErrors.driverId = "Please select a driver.";
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
-    axios
-      .post(
-        "${API_URL}/admin/vehicle/add",
-        vehicle,
+    try {
+      let driverId: number;
+      if (hasDriver) {
+        const driverRes = await axios.get(
+          `http://localhost:8080/admin/driver/get_id?name=${vehicle.driverId}`,
+          { withCredentials: true }
+        );
+
+        driverId = driverRes.data;
+        console.log(driverId);
+      }
+
+      const driver_obj = await axios.get(
+          `http://localhost:8080/admin/driver/get/${vehicle.driverId}`,
+          { withCredentials: true }
+        );
+
+      const [source, destination] = vehicle.routeId.split(" → ");
+      if (!source || !destination) {
+        newErrors.routeId = "Both source and destination are required.";
+        setErrors(newErrors);
+        return;
+      }
+
+      const routeRes = await axios.get(
+        `http://localhost:8080/admin/routes/get_id?source=${source}&destination=${destination}`,
         { withCredentials: true }
-      )
-      .then(() => {
-        onAdd(vehicle);
-        onClose();
-      })
-      .catch((error) => {
-        console.error("Error adding vehicle:", error);
-      });
+      );
+      const routeId = routeRes.data;
+      console.log(routeId);
+      const route_obj = await axios.get(
+        `http://localhost:8080/admin/routes/find/${routeId}`,
+        { withCredentials: true }
+      );
+
+      console.log(route_obj);
+      console.log(driver_obj);
+
+      const updatedVehicle = {
+        ...vehicle,
+        driver: driver_obj, // Ensuring driverId is string
+        route: route_obj,
+      };
+
+      console.log(updatedVehicle);
+      // Now fetch the vehicle ID from the backend after the vehicle is added
+      const res = await axios.post(
+        "http://localhost:8080/admin/vehicle/add",
+        updatedVehicle,
+        { withCredentials: true }
+      );
+
+      const newVehicle = { ...updatedVehicle, id: res.data.id }; // Get ID from the response
+      onAdd(newVehicle);
+      onClose();
+    } catch (error) {
+      console.error("Error adding vehicle:", error);
+    }
   };
 
   return (
@@ -128,6 +186,7 @@ const AddVehicle: React.FC<AddVehicleProps> = ({ onClose, onAdd }) => {
           </div>
           <div className="modal-body">
             <form onSubmit={handleAddVehicle}>
+              {/* Vehicle Name */}
               <div className="mb-3">
                 <label htmlFor="vehicleName" className="form-label">
                   Vehicle Name
@@ -145,14 +204,15 @@ const AddVehicle: React.FC<AddVehicleProps> = ({ onClose, onAdd }) => {
                 )}
               </div>
 
+              {/* Vehicle Type */}
               <div className="mb-3">
-                <label htmlFor="type" className="form-label">
+                <label htmlFor="vehicleType" className="form-label">
                   Vehicle Type
                 </label>
                 <input
                   type="text"
                   className={`form-control ${errors.type ? "is-invalid" : ""}`}
-                  id="type"
+                  id="vehicleType"
                   name="type"
                   value={vehicle.type}
                   onChange={handleInputChange}
@@ -162,14 +222,15 @@ const AddVehicle: React.FC<AddVehicleProps> = ({ onClose, onAdd }) => {
                 )}
               </div>
 
+              {/* Vehicle Status */}
               <div className="mb-3">
-                <label htmlFor="status" className="form-label">
+                <label htmlFor="vehicleStatus" className="form-label">
                   Vehicle Status
                 </label>
                 <input
                   type="text"
                   className={`form-control ${errors.status ? "is-invalid" : ""}`}
-                  id="status"
+                  id="vehicleStatus"
                   name="status"
                   value={vehicle.status}
                   onChange={handleInputChange}
@@ -179,9 +240,10 @@ const AddVehicle: React.FC<AddVehicleProps> = ({ onClose, onAdd }) => {
                 )}
               </div>
 
+              {/* Price per Km */}
               <div className="mb-3">
                 <label htmlFor="pricePerKm" className="form-label">
-                  Price Per Km
+                  Price per Km
                 </label>
                 <input
                   type="number"
@@ -196,44 +258,55 @@ const AddVehicle: React.FC<AddVehicleProps> = ({ onClose, onAdd }) => {
                 )}
               </div>
 
+              {/* Select Driver */}
               <div className="mb-3">
                 <label htmlFor="driverId" className="form-label">
                   Assign Driver
                 </label>
-                <select
-                  className={`form-select ${errors.driverId ? "is-invalid" : ""}`}
-                  id="driverId"
-                  name="driverId"
-                  value={vehicle.driverId || ""}
-                  onChange={handleInputChange}
-                >
-                  <option value="">Select a Driver</option>
-                  {drivers.map((driver) => (
-                    <option key={driver.id} value={driver.id}>
-                      {driver.name}
-                    </option>
-                  ))}
-                </select>
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  id="hasDriver"
+                  onChange={() => setHasDriver(!hasDriver)}
+                  checked={hasDriver}
+                />
+                {hasDriver && (
+                  <select
+                    className={`form-select ${errors.driverId ? "is-invalid" : ""}`}
+                    id="driverId"
+                    name="driverId"
+                    value={vehicle.driverId || ""}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Select a Driver</option>
+                    {drivers.map((driver) => (
+                      <option key={driver.id} value={driver.name}>
+                        {driver.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 {errors.driverId && (
                   <div className="invalid-feedback">{errors.driverId}</div>
                 )}
               </div>
 
+              {/* Select Route */}
               <div className="mb-3">
                 <label htmlFor="routeId" className="form-label">
-                  Assign Route
+                  Select Route
                 </label>
                 <select
                   className={`form-select ${errors.routeId ? "is-invalid" : ""}`}
                   id="routeId"
                   name="routeId"
-                  value={vehicle.routeId || ""}
+                  value={vehicle.routeId}
                   onChange={handleInputChange}
                 >
                   <option value="">Select a Route</option>
                   {routes.map((route) => (
-                    <option key={route.id} value={route.id}>
-                      {route.source} → {route.destination} ({route.distance} km)
+                    <option key={route.id} value={`${route.source} → ${route.destination}`}>
+                      {route.source} → {route.destination}
                     </option>
                   ))}
                 </select>
