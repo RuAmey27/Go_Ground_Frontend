@@ -1,11 +1,94 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
+const API_URL = import.meta.env.VITE_APP_API_URL
+// Step 1: Define the Route interface
+interface Route {
+  id: number;
+  source: string;
+  destination: string;
+  distance: number;
+  date: string;
+  vehicleType: string;
+}
 
-const BusBooking = () => {
+// Form data for submitting initial stage details
+interface BusBookingFormData {
+  source: string;
+  destination: string;
+  vehicleType: string;
+  date: string;
+}
+
+const BusBooking: React.FC = () => {
+  const [source, setSource] = useState<string>("");
+  const [destination, setDestination] = useState<string>("");
+  const [vehicleType, setVehicleType] = useState<string>("");
+  const [date, setDate] = useState<string>("");
+  const [availableRoutes, setAvailableRoutes] = useState<Route[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [vehicleStatus, setVehicleStatus] = useState<string | null>(null);
+  const [selectedRouteId, setSelectedRouteId] = useState<number | null>(null);
   const navigate = useNavigate();
 
-  const handleSearch = () => {
-    navigate("/BusSearch");
+  const handleSearch = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `${API_URL}/user/search_routes`,
+        { source, destination, vehicleType, date },
+        {
+          withCredentials: true,
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        }
+      );
+
+      if (Array.isArray(response.data)) {
+        setAvailableRoutes(response.data);
+      } else {
+        setAvailableRoutes([]);
+      }
+    } catch (error) {
+      alert("Failed to fetch available routes. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkVehicleAvailability = async (routeId: number) => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/vehicle/searchVehicle?type=${vehicleType}&routeId=${routeId}`
+      );
+
+      if (response.status === 200 && response.data === "Vehicle is valid and available") {
+        setVehicleStatus("available");
+      } else {
+        setVehicleStatus("unavailable");
+      }
+    } catch (error: any) {
+      setVehicleStatus("unavailable");
+    }
+  };
+
+  const handleBook = async (routeId: number) => {
+    setSelectedRouteId(routeId);
+    await checkVehicleAvailability(routeId);
+  };
+
+  const handleProceed = () => {
+    const formData: BusBookingFormData = { source, destination, vehicleType, date };
+    if (selectedRouteId) {
+      navigate(`/passenger-details/${selectedRouteId}`, { state: { routeId: selectedRouteId, formData } });
+    }
+    setVehicleStatus(null); // Close modal
+  };
+
+  const handleCloseModal = () => {
+    setVehicleStatus(null);
+    setSelectedRouteId(null);
   };
 
   return (
@@ -16,8 +99,7 @@ const BusBooking = () => {
         </div>
         <div className="card-body">
           <div className="row align-items-end">
-            {/* Source */}
-            <div className="col-md-2">
+            <div className="col-md-3">
               <label htmlFor="source" className="form-label">
                 Source
               </label>
@@ -26,11 +108,12 @@ const BusBooking = () => {
                 id="source"
                 className="form-control"
                 placeholder="Enter Source"
+                value={source}
+                onChange={(e) => setSource(e.target.value)}
               />
             </div>
 
-            {/* Destination */}
-            <div className="col-md-2">
+            <div className="col-md-3">
               <label htmlFor="destination" className="form-label">
                 Destination
               </label>
@@ -39,116 +122,126 @@ const BusBooking = () => {
                 id="destination"
                 className="form-control"
                 placeholder="Enter Destination"
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
               />
             </div>
 
-            {/* Date From */}
-            <div className="col-md-2">
-              <label htmlFor="dateFrom" className="form-label">
-                Date From
+            <div className="col-md-3">
+              <label htmlFor="vehicleType" className="form-label">
+                Vehicle Type
               </label>
-              <input type="date" id="dateFrom" className="form-control" />
-            </div>
-
-            {/* Date To */}
-            <div className="col-md-2">
-              <label htmlFor="dateTo" className="form-label">
-                Date To
-              </label>
-              <input type="date" id="dateTo" className="form-control" />
-            </div>
-
-            {/* Number of Travelers */}
-            <div className="col-md-2">
-              <label htmlFor="numTravelers" className="form-label">
-                Travelers
-              </label>
-              <input
-                type="number"
-                id="numTravelers"
-                className="form-control"
-                placeholder="Travelers"
-              />
-            </div>
-
-            {/* Bus Type */}
-            <div className="col-md-2">
-              <label htmlFor="busType" className="form-label">
-                Bus Type
-              </label>
-              <select id="busType" className="form-select">
-                <option value="standard">Standard</option>
-                <option value="luxury">Luxury</option>
-                <option value="express">Express</option>
+              <select
+                id="vehicleType"
+                className="form-select"
+                value={vehicleType}
+                onChange={(e) => setVehicleType(e.target.value)}
+              >
+                <option value="">Select</option>
+                <option value="bus">Bus</option>
+                <option value="cab">Cab</option>
               </select>
             </div>
 
-            {/* Search Button */}
-            <div className="col-md-12 mt-12 d-flex justify-content-end">
-              <button
-                className="btn btn-primary"
-                onClick={() => navigate("/Ground/Search")}
-              >
-                Search
-              </button>
+            <div className="col-md-3">
+              <label htmlFor="date" className="form-label">
+                Date
+              </label>
+              <input
+                type="date"
+                id="date"
+                className="form-control"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
             </div>
           </div>
-        </div>
 
-        {/* Offers */}
-        <div className="card mt-4">
-          <h1> Special Discounts for You</h1>
-          <div className="row">
-            {/* First Card */}
-            <div className="col-md-4 mb-4">
-              <div
-                className="bg-light-danger px-6 py-8 rounded-2 me-7"
-                style={{ width: "200px" }}
-              >
-                <i className="ki-duotone ki-abstract-26 fs-3x text-danger d-block my-2">
-                  <span className="path1"></span>
-                  <span className="path2"></span>
-                </i>
-                <a href="#" className="text-danger fw-semibold fs-6 mt-2">
-                  10% off on Bus Booking
-                </a>
-              </div>
-            </div>
-
-            {/* Second Card */}
-            <div className="col-md-4 mb-4">
-              <div
-                className="bg-light-danger px-6 py-8 rounded-2 me-7"
-                style={{ width: "200px" }}
-              >
-                <i className="ki-duotone ki-abstract-26 fs-3x text-danger d-block my-2">
-                  <span className="path1"></span>
-                  <span className="path2"></span>
-                </i>
-                <a href="#" className="text-danger fw-semibold fs-6 mt-2">
-                  15% off for Early Bookings
-                </a>
-              </div>
-            </div>
-
-            {/* Third Card */}
-            <div className="col-md-4 mb-4">
-              <div
-                className="bg-light-danger px-6 py-8 rounded-2 me-7"
-                style={{ width: "200px" }}
-              >
-                <i className="ki-duotone ki-abstract-26 fs-3x text-danger d-block my-2">
-                  <span className="path1"></span>
-                  <span className="path2"></span>
-                </i>
-                <a href="#" className="text-danger fw-semibold fs-6 mt-2">
-                  20% off on Round Trips
-                </a>
-              </div>
-            </div>
+          <div className="mt-3 d-flex justify-content-end">
+            <button
+              className="btn btn-primary"
+              onClick={handleSearch}
+              disabled={loading}
+            >
+              {loading ? "Searching..." : "Search"}
+            </button>
           </div>
         </div>
       </div>
+
+      <div className="card mt-4">
+        <div className="card-body">
+          <h2>Available Routes</h2>
+          {loading && <p>Loading routes...</p>}
+          {availableRoutes.length === 0 && !loading && <p>No routes available.</p>}
+          {availableRoutes.length > 0 && (
+            <table className="table table-striped table-bordered">
+              <thead className="table-dark">
+                <tr>
+                  <th>ID</th>
+                  <th>Source</th>
+                  <th>Destination</th>
+                  <th>Date</th>
+                  <th>Vehicle Type</th>
+                  <th>Distance (km)</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {availableRoutes.map((route) => (
+                  <tr key={route.id}>
+                    <td>{route.id}</td>
+                    <td>{route.source}</td>
+                    <td>{route.destination}</td>
+                    <td>{route.date}</td>
+                    <td>{route.vehicleType}</td>
+                    <td>{route.distance}</td>
+                    <td>
+                      <button
+                        onClick={() => handleBook(route.id)}
+                        className="btn btn-success btn-sm"
+                      >
+                        Book
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
+      {/* Modal for vehicle availability */}
+      {vehicleStatus && (
+        <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Vehicle Availability</h5>
+                <button type="button" className="btn-close" onClick={handleCloseModal}></button>
+              </div>
+              <div className="modal-body">
+                {vehicleStatus === "available" ? (
+                  <p>The vehicle is available. Do you want to proceed with booking?</p>
+                ) : (
+                  <p>Sorry, the vehicle is not available right now. Please try another route.</p>
+                )}
+              </div>
+              <div className="modal-footer">
+                {vehicleStatus === "available" && (
+                  <button className="btn btn-primary" onClick={handleProceed}>
+                    Proceed
+                  </button>
+                )}
+                <button className="btn btn-secondary" onClick={handleCloseModal}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

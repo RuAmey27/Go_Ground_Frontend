@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Pagination from "../../Pagination";
-import AddBus from "../Admin_Ground/AddBus";
 import axios from "axios";
+import AddVehicle from "./AddVehicle";
+const API_URL = import.meta.env.VITE_APP_API_URL as string
 
 // Interfaces for API response types
 interface Driver {
@@ -32,7 +33,7 @@ interface Vehicle {
 const fetchAllVehicles = async (): Promise<Vehicle[]> => {
   try {
     const response = await axios.get<Vehicle[]>(
-      "http://localhost:8080/admin/vehicle/all",
+      `${API_URL}/admin/vehicle/all`,
       {
         withCredentials: true,
       }
@@ -139,6 +140,47 @@ export const BusesPage: React.FC = () => {
                       {vehicle.route.source} → {vehicle.route.destination}
                     </td>
                     <td>{vehicle.route.distance} km</td>
+                    <td>
+                    <div className="d-flex flex-row align-items-center">
+                      <button
+                      className="btn btn-icon btn-bg-light btn-sm me-1"
+                      //onClick={() => handleViewClick(employee)}
+                    >
+                      <i className="ki-duotone ki-eye fs-3 text-primary">
+                        <span className="path1"></span>
+                        <span className="path2"></span>
+                        <span className="path3"></span>
+                      </i>
+                    </button>
+
+                        <button
+                        type="button"
+                        className="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1"
+                        //onClick={() => handleEditClick(employee)}
+                      >
+                        <i className="ki-duotone ki-pencil fs-3 text-primary">
+                          <span className="path1"></span>
+                          <span className="path2"></span>
+                        </i>
+                      </button>
+                        <button
+                        type="button"
+                        className="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1"
+                        // onClick={() => {
+                        //   setSelectedDriverId(employee.driverId || null);
+                        //   setShowDeleteModal(true);
+                        // }}
+                      >
+                        <i className="ki-duotone ki-trash fs-3 text-danger">
+                          <span className="path1"></span>
+                          <span className="path2"></span>
+                          <span className="path3"></span>
+                          <span className="path4"></span>
+                          <span className="path5"></span>
+                        </i>
+                      </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
             </tbody>
@@ -159,7 +201,7 @@ export const BusesPage: React.FC = () => {
 
       {/* Add Bus Modal */}
       {showAddBusModal && (
-        <AddBus
+        <AddVehicle
           onClose={() => setShowAddBusModal(false)}
           // Pass appropriate onAdd logic
           onAdd={(newBus) => console.log("Add new bus", newBus)}

@@ -4,7 +4,7 @@ import axios from "axios";
 import AddDriver from "./AddDriver";
 import DeleteModal from "./DeleteModal";
 import DriverDetailsModal from "./DriverDetailsModal";
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 // Interface for Driver
 interface Driver {
   driverId?: number;
@@ -15,7 +15,7 @@ interface Driver {
 
 const getAllDrivers = async (setEmployees: React.Dispatch<React.SetStateAction<Driver[]>>) => {
   try {
-    const response = await axios.get<Driver[]>("http://localhost:8080/admin/driver/all", {
+    const response = await axios.get<Driver[]>(`${API_URL}/admin/driver/all`, {
       withCredentials: true,
     });
     setEmployees(response.data);
@@ -62,7 +62,7 @@ export const BusEmployeePage: React.FC = () => {
 
   const handleAddEmployee = async (newDriver: Driver) => {
     try {
-      await axios.post("http://localhost:8080/admin/driver/add", newDriver, {
+      await axios.post(`${API_URL}/admin/driver/add`, newDriver, {
         withCredentials: true,
       });
       await getAllDrivers(setEmployees); // Refresh the employee list
@@ -75,7 +75,7 @@ export const BusEmployeePage: React.FC = () => {
     if (selectedDriverId === null) return;
 
     try {
-      await axios.delete(`http://localhost:8080/admin/driver/remove/${selectedDriverId}`, {
+      await axios.delete(`${API_URL}/admin/driver/remove/${selectedDriverId}`, {
         withCredentials: true,
       });
       await getAllDrivers(setEmployees); // Refresh the employee list after deletion
@@ -99,7 +99,7 @@ export const BusEmployeePage: React.FC = () => {
   const updateDriver = async (updatedDriver: Driver) => {
     try {
       await axios.put(
-        `http://localhost:8080/admin/driver/update/${updatedDriver.driverId}`,
+        `${API_URL}/admin/driver/update/${updatedDriver.driverId}`,
         updatedDriver,
         { withCredentials: true }
       );
@@ -173,7 +173,7 @@ export const BusEmployeePage: React.FC = () => {
             onClick={() => setShowAddEmployeeModal(true)}
           >
             <i className="fs-2 bi bi-plus" />
-            Add New Employee
+            Add Driver
           </button>
         </div>
       </div>

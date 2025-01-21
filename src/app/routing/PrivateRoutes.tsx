@@ -44,6 +44,15 @@ import SummaryAir from "../pages/AirTransport/UserUI_A/SummaryAir";
 import BusDetails from "../pages/GroundTransport/UserUI_G/BusDetails";
 import SummaryGround from "../pages/GroundTransport/UserUI_G/SummaryGround";
 import { RouteDetail } from "../pages/GroundTransport/Admin_Ground/RouteDetail";
+import { Logout } from "../modules/auth/Logout";
+import UserDashboard from "../pages/GroundTransport/UserUI_G/SummaryGround";
+import PassengerDetails from "../pages/GroundTransport/Admin_Ground/PassengerDetails";
+import PaymentDetails from "../pages/GroundTransport/UserUI_G/PaymentDetails";
+import ConfirmBooking from "../pages/GroundTransport/UserUI_G/ConfirmBooking";
+import EditCredentialsPage from "../pages/GroundTransport/UserUI_G/EditCredentialsPage.tsx";
+import {UserHistory} from "../pages/GroundTransport/UserUI_G/UserHistory.tsx";
+import { PaymentPage } from "../pages/GroundTransport/Admin_Ground/Payments";
+
 
 const PrivateRoutes = () => {
   const ProfilePage = lazy(() => import("../modules/profile/ProfilePage"));
@@ -110,6 +119,7 @@ const PrivateRoutes = () => {
         <Route path="Ground/bususer" element={<BusUserPage />}></Route>
         <Route path="Ground/busbooking" element={<BusBookingPage />}></Route>
         <Route path="Ground/routes" element={<RouteDetail />}></Route>
+        <Route path="Ground/payments" element={<PaymentPage/>}/>
         <Route path="Ground/FAQ" element={<FAQGroudPage />}></Route>
 
         {/* 
@@ -139,6 +149,16 @@ const PrivateRoutes = () => {
         <Route path="/Ground/Search" element={<BusSearch />} />
         <Route path="/BusDetails" element={<BusDetails />} />
         <Route path="/SummaryGround" element={<SummaryGround />} />
+        <Route path="/UserDashBoardGround" element={<UserDashboard />} />
+        <Route path="/Profile" element={<EditCredentialsPage/>} />
+        <Route path="/BookingHistory" element={<UserHistory/>} />
+
+        {/* Ground User Passenger Booking */}
+        <Route path={"/passenger-details/:routeId"} element={<PassengerDetails/>}/>
+        {/* COnfirm booking for ground user */}
+        <Route path="/confirm-booking" element={<ConfirmBooking/>}/>
+        {/* Payment details for ground user */}
+        <Route path="/payment-details" element={<PaymentDetails/>}/>
 
         {/* <Route path=" Air/Booking" element={<AirBookingPage/>}></Route> */}
 

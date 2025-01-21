@@ -1,25 +1,30 @@
 import React, { useEffect, useState } from "react";
 import Pagination from "../../Pagination";
 import axios from "axios";
-import DeleteRouteModal from "./DeleteRouteModal";
-// import AddBusUser from "./AddBusUser";
+import AddRoute from "./AddRouteModal";
+import DeleteModal from "./DeleteModal";
+import ViewEditRouteModal from "./ViewEditRouteModal";
+const API_URL = import.meta.env.VITE_APP_API_URL
 
+// Interface for Driver
 interface RouteInterface {
-  routeId: number;
+  routeId?: number;
   source: string;
   destination: string;
   distance: number;
 }
 
-const getAllRoutes = async (setRoutes: React.Dispatch<React.SetStateAction<RouteInterface[]>>) => {
+const getAllRoutes = async (setEmployees: React.Dispatch<React.SetStateAction<RouteInterface[]>>) => {
   try {
-    const response = await axios.get('http://localhost:8080/admin/routes/get', {
+    const response = await axios.get<RouteInterface[]>(`${API_URL}/admin/routes/get`, {
       withCredentials: true,
     });
-    setRoutes(response.data);
-    console.log(response.data);
+    setEmployees(response.data);
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching drivers:", error);
+    if (axios.isAxiosError(error)) {
+      console.error("Axios Error:", error.message);
+    }
   }
 };
 
@@ -28,60 +33,113 @@ export const RouteDetail: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [search, setSearch] = useState("");
+  const [showAddERouteModal, setShowAddRouteModal] = useState(false);
   const [status, setStatus] = useState("");
-  const [showDeleteRouteModal, setShowDeleteRouteModal] = useState(false);
-  const [deleteRouteId, setDeleteRouteId] = useState<number | null>(null); 
-  const [deleteMessage, setDeleteMessage] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedRouteId, setSelectedRouteId] = useState<number | null>(null);
+  const [selectedRoute, setSelectedRoute] = useState<RouteInterface | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false); // Determines the modal mode
 
-  const filteredRoutes = routes.filter((route) =>
-    route.source.toLowerCase().includes(search.toLowerCase())
-  );
+  // Filter employees based on search and status
+  const filteredRoutes = routes.filter((route) => {
+    const matchesSearch = route.source.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = status ? route.source === status : true;
+    return matchesSearch && matchesStatus;
+  });
 
+  // Handle pagination
   const handlePageChange = (page: number) => setCurrentPage(page);
 
-  const handleEntriesPerPageChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
+  const handleEntriesPerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(event.target.value, 10);
     setEntriesPerPage(value);
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to first page when entries per page change
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
+    setCurrentPage(1); // Reset to first page when search changes
+  };
 
-  const handleDeleteRoute = async () => {
-    if (deleteRouteId === null) return;
-  
+  const handleAddRoute = async (newRoute: RouteInterface) => {
     try {
-      console.log(`Deleting route with ID: ${deleteRouteId}`);
-  
-      const response = await axios.delete(
-        `http://localhost:8080/admin/routes/delete/${deleteRouteId}`,
+      await axios.post(
+        
+        `${API_URL}/admin/routes/add`,
+        newRoute,
         {
           withCredentials: true,
         }
+        
       );
-  
-      console.log("Delete response:", response);
-  
-      // Set the response message to the state
-      setDeleteMessage(response.data);  // Assuming the server sends a string message
-  
-      setRoutes(routes.filter((route) => route.routeId !== deleteRouteId));
-  
-      setShowDeleteRouteModal(false);
-      setDeleteRouteId(null); // Reset the deleteRouteId state
+      
+      await getAllRoutes(setRoutes); // Refresh the routes list
     } catch (error) {
-      console.error("Error deleting route:", error);
-      setDeleteMessage("Error deleting the route. Please try again.");
+      console.error("Error adding route:", error);
     }
   };
   
-  const handleDeleteClick = (routeId: number) => {
-    setDeleteRouteId(routeId); // Set the deleteRouteId
-    setShowDeleteRouteModal(true); // Show the delete modal
+
+  const handleDeleteRoute = async () => {
+    if (selectedRouteId === null) {
+      console.error("No route selected for deletion");
+      return;
+    }
+  
+    try {
+      await axios.delete(`${API_URL}/admin/routes/delete/${selectedRouteId}`, {
+        withCredentials: true,
+      });
+      await getAllRoutes(setRoutes); // Refresh the route list after deletion
+      setShowDeleteModal(false); // Close the modal
+      setSelectedRouteId(null); // Reset selected route
+    } catch (error) {
+      console.error("Error deleting route:", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Axios Error:", error.response?.data || error.message);
+      }
+    }
   };
+  
+
+  const handleViewClick = (route: RouteInterface) => {
+    setSelectedRoute(route);
+    setIsEditMode(false); // Set the modal to View mode
+  };
+  
+  const handleEditClick = (route: RouteInterface) => {
+    setSelectedRoute(route);
+    setIsEditMode(true); // Set the modal to Edit mode
+  };
+  
+  const updateRoute = async (updatedRoute: RouteInterface) => {
+    try {
+      await axios.put(
+        `${API_URL}/admin/routes/update/${updatedRoute.routeId}`,
+        updatedRoute,
+        { withCredentials: true }
+      );
+      console.log("Driver updated successfully");
+    } catch (error) {
+      console.error("Error updating route:", error);
+      throw error; // Propagate the error so it can be handled at the calling place
+    }
+  };
+  const handleSaveRoute = async (updatedRoute: RouteInterface) => {
+    try {
+      // Call the update driver function
+      await updateRoute(updatedRoute);
+  
+      // Refresh the list after updating
+      await getAllRoutes(setRoutes);
+  
+      // Close the modal
+      setSelectedRoute(null);
+    } catch (error) {
+      console.error("Error updating driver:", error);
+    }
+  };
+    
 
   useEffect(() => {
     getAllRoutes(setRoutes);
@@ -106,30 +164,12 @@ export const RouteDetail: React.FC = () => {
             value={search}
             onChange={handleSearchChange}
           />
-
-          <div className="d-flex align-items-center">
-            <span className="fs-7 fw-bolder text-gray-700 pe-4 text-nowrap d-none d-xxl-block">
-              Filter By Status:
-            </span>
-            <select
-              className="form-select form-select-sm form-select-solid w-100px w-xxl-125px"
-              data-control="select2"
-              data-placeholder="All"
-              data-hide-search="true"
-              defaultValue={status}
-              onChange={(e) => setStatus(e.target.value)}
-            >
-              <option value=""></option>
-              <option value="1">All</option>
-              <option value="2">Passenger</option>
-              <option value="3">Driver</option>
-            </select>
-          </div>
+  
 
           <button
             type="button"
             className="btn btn-light-primary border-0 rounded mx-2"
-            onClick={() => {/* Open Add Route Modal */}}
+            onClick={() => setShowAddRouteModal(true)}
           >
             <i className="fs-2 bi bi-plus" />
             Add New Route
@@ -143,7 +183,7 @@ export const RouteDetail: React.FC = () => {
           <table className="table table-hover table-rounded table-striped border gy-7 gs-7">
             <thead>
               <tr className="fw-bold fs-6 text-gray-800 border-bottom border-gray-200">
-                <th>Id</th>
+                <th>ID</th>
                 <th>Source</th>
                 <th>Destination</th>
                 <th>Distance</th>
@@ -153,40 +193,51 @@ export const RouteDetail: React.FC = () => {
             <tbody>
               {filteredRoutes
                 .slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage)
-                .map((route, index) => (
-                  <tr key={`${route.routeId}-${index}`}>
+                .map((route) => (
+                  <tr key={route.routeId}>
                     <td>{route.routeId}</td>
                     <td>{route.source}</td>
                     <td>{route.destination}</td>
                     <td>{route.distance}</td>
                     <td className="text-center">
                       <div className="d-flex flex-row align-items-center">
-                        <button className="btn btn-icon btn-bg-light btn-sm me-1">
-                          <i className="ki-duotone ki-eye fs-3 text-primary">
-                            <span className="path1"></span>
-                            <span className="path2"></span>
-                            <span className="path3"></span>
-                          </i>
-                        </button>
-                        <button type="button" className="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1">
-                          <i className="ki-duotone ki-pencil fs-3 text-primary">
-                            <span className="path1"></span>
-                            <span className="path2"></span>
-                          </i>
-                        </button>
+                      <button
+                      className="btn btn-icon btn-bg-light btn-sm me-1"
+                      onClick={() => handleViewClick(route)}
+                    >
+                      <i className="ki-duotone ki-eye fs-3 text-primary">
+                        <span className="path1"></span>
+                        <span className="path2"></span>
+                        <span className="path3"></span>
+                      </i>
+                    </button>
+
                         <button
-                          type="button"
-                          className="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1"
-                          onClick={() => handleDeleteClick(route.routeId)} // Trigger the correct routeId
-                        >
-                          <i className="ki-duotone ki-trash fs-3 text-danger">
-                            <span className="path1"></span>
-                            <span className="path2"></span>
-                            <span className="path3"></span>
-                            <span className="path4"></span>
-                            <span className="path5"></span>
-                          </i>
-                        </button>
+                        type="button"
+                        className="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1"
+                        onClick={() => handleEditClick(route)}
+                      >
+                        <i className="ki-duotone ki-pencil fs-3 text-primary">
+                          <span className="path1"></span>
+                          <span className="path2"></span>
+                        </i>
+                      </button>
+                        <button
+                        type="button"
+                        className="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1"
+                        onClick={() => {
+                          setSelectedRouteId(route.routeId || null);
+                          setShowDeleteModal(true);
+                        }}
+                      >
+                        <i className="ki-duotone ki-trash fs-3 text-danger">
+                          <span className="path1"></span>
+                          <span className="path2"></span>
+                          <span className="path3"></span>
+                          <span className="path4"></span>
+                          <span className="path5"></span>
+                        </i>
+                      </button>
                       </div>
                     </td>
                   </tr>
@@ -206,23 +257,32 @@ export const RouteDetail: React.FC = () => {
           onEntriesPerPageChange={handleEntriesPerPageChange}
         />
       </div>
-
-      {/* Delete Route Modal */}
-      {showDeleteRouteModal && deleteRouteId !== null && (
-        <DeleteRouteModal
-          show={showDeleteRouteModal}
-          onClose={() => setShowDeleteRouteModal(false)}
+      {showDeleteModal && (
+        <DeleteModal
+          show={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
           onDelete={handleDeleteRoute}
           itemName="this route"
         />
       )}
-      {deleteMessage && (
-      <div className="alert alert-info">
-        {deleteMessage}
-      </div>
-    )}
+
+      
+      {selectedRoute && (
+    <ViewEditRouteModal
+    route={selectedRoute}
+    isEditMode={isEditMode}
+    onClose={() => setSelectedRoute(null)}
+    onSave={handleSaveRoute} // Reuse the handleSaveDriver function here
+  />
+      )}
+
+      {showAddERouteModal && (
+        <AddRoute
+          onClose={() => setShowAddRouteModal(false)}
+          onAdd={handleAddRoute}
+        />
+      )}
+
     </div>
   );
 };
-
-export default RouteDetail;

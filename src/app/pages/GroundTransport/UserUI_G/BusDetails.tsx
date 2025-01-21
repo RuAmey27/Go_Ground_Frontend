@@ -5,3 +5,4 @@ const BusDetails = () => {
 };
 
 export default BusDetails;
+

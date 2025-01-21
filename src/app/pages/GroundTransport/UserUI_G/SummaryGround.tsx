@@ -1,7 +1,11 @@
 import React from "react";
 
-const SummaryGround = () => {
-  return <div>SummaryGround</div>;
+const UserDashboard = () => {
+  return (
+    <div>
+      <h1>Ground UserDashboard</h1>
+    </div>
+  );
 };
 
-export default SummaryGround;
+export default UserDashboard;

@@ -6,8 +6,11 @@ import {KTIcon} from '../../../helpers'
 import {AsideMenu} from './AsideMenu'
 import {AsideToolbar} from './AsideToolbar'
 
+
+
 const AsideDefault: FC = () => {
   const {classes} = useLayout()
+
 
   return (
     <div
@@ -30,6 +33,8 @@ const AsideDefault: FC = () => {
       <div className='aside-menu flex-column-fluid'>
         <AsideMenu asideMenuCSSClasses={classes.asideMenu} />
       </div>
+
+      
       {/* end::Aside menu */}
 
       {/* begin::Footer */}

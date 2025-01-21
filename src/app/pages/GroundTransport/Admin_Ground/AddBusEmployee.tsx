@@ -106,7 +106,7 @@ const AddBusEmployee: React.FC<AddBusProps> = ({ onClose, onAdd }) => {
                 />
               </div>
               <button type="submit" className="btn btn-primary">
-                Add Bus
+                Add Vehicle
               </button>
             </form>
           </div>

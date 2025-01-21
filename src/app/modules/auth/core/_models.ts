@@ -5,10 +5,15 @@
 //   isAuthenticated: boolean;
 // }
 
+// export interface AuthModel {
+//   //isAuthenticated: boolean;
+//   withCredentials: boolean; // Indicates whether credentials are sent with requests
+// }
+
 export interface AuthModel {
-  //isAuthenticated: boolean;
-  withCredentials: boolean; // Indicates whether credentials are sent with requests
+  withCredentials: boolean; // Indicates credentials are sent with requests
 }
+
 
 export interface UserAddressModel {
   addressLine: string
