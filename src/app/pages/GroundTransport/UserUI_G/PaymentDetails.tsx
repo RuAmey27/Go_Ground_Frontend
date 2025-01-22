@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+
 const API_URL = import.meta.env.VITE_APP_API_URL;
+
+import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js"; // Import Stripe components
+
+
+
 interface PassengerDetailsFormData {
   name: string;
   age: number;
@@ -23,7 +29,6 @@ const PaymentDetails: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Extract the passed booking details and bookingId from location.state
   const { bookingDetails, bookingId } = location.state as {
     bookingDetails: BookingDetails;
     bookingId: number;
@@ -35,6 +40,9 @@ const PaymentDetails: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>(""); // Track selected payment method
+
+  const stripe = useStripe();
+  const elements = useElements();
 
   // Fetch fare on component mount
   useEffect(() => {
@@ -65,43 +73,75 @@ const PaymentDetails: React.FC = () => {
   }, [formData.source, formData.destination, formData.vehicleType, formData.date, passengers]);
 
   const handlePayment = async () => {
-    if (!paymentMethod) {
-      alert("Please select a payment method.");
+    if (!stripe || !elements) {
+      alert("Stripe has not loaded yet. Please try again.");
       return;
     }
 
-    console.log("Processing payment with method:", paymentMethod);
+    if (!fare) {
+      alert("Fare is not available.");
+      return;
+    }
+
+    const fareToBeCalculated = fare * 100;
+
     setLoading(true);
     try {
-      console.log({
-        paymentMethod,
-        amount: fare,
-        bookingId,
+      // Step 1: Create PaymentIntent
+      const { data } = await axios.post(`${API_URL}/stripe/payment/create-intent`,{
+        "amount": 5000.0,
+        "currency": "usd",
+        "booking_id": 123456,
+        "payment_method": "card"
       });
 
-      const response = await axios.post(`${API_URL}/payment/create`, {
-        paymentMethod,
-        amount: fare,
-        bookingId, // Pass the bookingId received earlier
-      });
 
-      console.log("Payment response:", response);
+      const { clientSecret } = data;
 
-      try {
-        console.log("Sending booking confirmation mail for booking ID:", bookingId);
-        const sendMail = await axios.post(`${API_URL}/mail/${bookingId}`);
-        console.log("Mail sent successfully:", sendMail);
-      } catch (mailError) {
-        console.error("Error sending mail:", mailError);
+      // Step 2: Confirm the PaymentIntent with Stripe
+      const cardElement = elements.getElement(CardElement);
+      if (!cardElement) {
+        alert("Card Element not found. Please try again.");
+        return;
       }
 
-      if (response.status === 200) {
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+        },
+
+      });
+
+      if (error) {
+        setError(`Payment failed: ${error.message}`);
+        alert("Payment failed. Please try again.");
+      } else if (paymentIntent) {
+        console.log("Payment successful:", paymentIntent);
+
+
+        // Step 3: Update payment status on the backend
+        const paymentId = paymentIntent.id;
+        const confirmPaymentStatus = await axios.put(
+          `${API_URL}/stripe/payment/update-status/${paymentId}?status=COMPLETED`
+        );
+
+        console.log("Payment status updated:", confirmPaymentStatus);
+
+        // Step 4: Send email confirmation for booking
+        try {
+          const sendMail = await axios.post(`${API_URL}/mail/${bookingId}`);
+          console.log("Mail sent successfully:", sendMail);
+        } catch (mailError) {
+          console.error("Error sending mail:", mailError);
+        }
+
+
         alert("Payment successful! Your booking is confirmed.");
-        navigate("/BookingHistory"); // Redirect to a success page
+        navigate("/BookingHistory"); // Redirect to booking history
       }
-    } catch (error) {
-      console.error("Error making payment:", error);
-      alert("Payment failed. Please try again.");
+    } catch (err) {
+      console.error("Error processing payment:", err);
+      alert("An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -145,47 +185,9 @@ const PaymentDetails: React.FC = () => {
             )}
           </h5>
 
-          <h5>Select Payment Method:</h5>
-          <div className="mb-3">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="paymentMethod"
-                id="upi"
-                value="UPI"
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              />
-              <label className="form-check-label" htmlFor="upi">
-                UPI
-              </label>
-            </div>
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="paymentMethod"
-                id="creditCard"
-                value="Credit Card"
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              />
-              <label className="form-check-label" htmlFor="creditCard">
-                Credit/Debit Card
-              </label>
-            </div>
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="paymentMethod"
-                id="netBanking"
-                value="Net Banking"
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              />
-              <label className="form-check-label" htmlFor="netBanking">
-                Net Banking
-              </label>
-            </div>
+          <h5>Enter Payment Details:</h5>
+          <div className="form-group">
+            <CardElement />
           </div>
 
           <div className="d-flex justify-content-between">

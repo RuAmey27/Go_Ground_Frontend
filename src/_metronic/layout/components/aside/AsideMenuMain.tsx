@@ -67,6 +67,7 @@ import { AsideMenuMainUpdatedGroundUser } from "./AsideMenuMain_UserGround.tsx";
 import AsideMenuMainUpdatedWater from "./AsideMenuMain_WaterAdmin";
 import { AsideMenuMainUpdatedWaterUser } from "./AsideMenuMain_UserWater.tsx";
 import axios from "axios";
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 export function AsideMenuMainUpdated() {
   useIntl();
@@ -79,7 +80,7 @@ export function AsideMenuMainUpdated() {
   useEffect(() => {
     const fetchSessionData = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/session", {
+        const response = await axios.get(`${API_URL}/api/session`, {
           withCredentials: true,
         });
 

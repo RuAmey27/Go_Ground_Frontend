@@ -4,6 +4,8 @@ import axios from 'axios'
 import {Chart, registerables} from 'chart.js'
 import {QueryClient, QueryClientProvider} from 'react-query'
 import {ReactQueryDevtools} from 'react-query/devtools'
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 // Apps
 import {MetronicI18nProvider} from './_metronic/i18n/Metronici18n'
 import './_metronic/assets/sass/style.react.scss'
@@ -35,13 +37,16 @@ Chart.register(...registerables)
 
 const queryClient = new QueryClient()
 const container = document.getElementById('root')
+const stripePromise = loadStripe("pk_test_51QjGwpR5yyRTV8YI5vwSX0VFI95wlj6BlaH3IdvTmfkQbFY9hg76KyvFZ7oGbF8SG6AK56IPjCkkcsBdHyoaktO800RlfSO2H4");
 if (container) {
   createRoot(container).render(
     <QueryClientProvider client={queryClient}>
       <MetronicI18nProvider>
-          <AuthProvider>
-              <AppRoutes/>
-          </AuthProvider>
+        <AuthProvider>
+          <Elements stripe={stripePromise}>
+          <AppRoutes />
+          </Elements>  
+        </AuthProvider>
       </MetronicI18nProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

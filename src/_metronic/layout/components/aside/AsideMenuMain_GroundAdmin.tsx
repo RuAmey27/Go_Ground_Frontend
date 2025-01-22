@@ -29,6 +29,11 @@ export function AsideMenuMainUpdatedGround() {
         icon="element-11"
         title="Drivers "
       />
+      <AsideMenuItem
+        to="/Ground/payments"
+        icon="element-11"
+        title="Payments "
+      />
       {/*<AsideMenuItem to="Ground/BusRevenue" icon="element-11" title="Revenue" />*/}
       <AsideMenuItem to="Ground/busbooking" icon="element-11" title="Booking History" />
     </>
