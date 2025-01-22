@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Pagination from "../../Pagination";
 import axios from "axios";
-const API_URL = import.meta.env.VITE_APP_API_URL
+
+const API_URL = import.meta.env.VITE_APP_API_URL;
+
 // Interfaces (unchanged)
 interface Passenger {
   name: string;

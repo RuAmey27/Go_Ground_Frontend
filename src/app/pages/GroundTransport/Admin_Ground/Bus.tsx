@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Pagination from "../../Pagination";
+
+// import AddBus from "../Admin_Ground/AddBus";
 import axios from "axios";
-import AddVehicle from "./AddVehicle";
-const API_URL = import.meta.env.VITE_APP_API_URL as string
+import AddVehicle from "./AddVehicle.tsx";
+const API_URL = import.meta.env.VITE_APP_API_URL;
+
+
+
+
 
 // Interfaces for API response types
 interface Driver {
@@ -38,6 +44,7 @@ const fetchAllVehicles = async (): Promise<Vehicle[]> => {
         withCredentials: true,
       }
     );
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching API:", error);

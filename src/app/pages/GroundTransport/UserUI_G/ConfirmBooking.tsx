@@ -29,7 +29,7 @@ const ConfirmBooking: React.FC = () => {
   // Retrieve the booking details from location.state
   const { bookingDetails } = location.state as { bookingDetails: BookingDetails };
 
-  const { routeId, formData, passengers } = bookingDetails;
+  const {  formData, passengers } = bookingDetails;
 
   const [loading, setLoading] = useState<boolean>(false);
 

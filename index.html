@@ -9,7 +9,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700"
     />
-    
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
     <title>
       Metronic - The World's #1 Selling React & Bootstrap Admin Template by
       KeenThemes
@@ -47,12 +47,12 @@
     <!--begin::Loading markup-->
     <div id="splash-screen" class="splash-screen">
       <img
-        src="http://localhost:5174/media/logos/keenthemes-dark.svg"
+        src="/media/logos/keenthemes-dark.svg"
         class="dark-logo"
         alt="Keenthemes dark logo"
       />
       <img
-        src="http://localhost:5174/media/logos/keenthemes.svg"
+        src="/media/logos/keenthemes.svg"
         class="light-logo"
         alt="Keenthemes light logo"
       />
@@ -62,11 +62,19 @@
       </div>
     </div>
     <!--end::Loading markup-->
-    <div id="root-modals"></div>
+<!--    <div id="root-modals"></div>-->
 
     <script type="module" src="/src/main.tsx"></script>
+
+
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+
+  <script>
+      (function () { if (!window.chatbase || window.chatbase("getState") !== "initialized") { window.chatbase = (...arguments) => { if (!window.chatbase.q) { window.chatbase.q = [] } window.chatbase.q.push(arguments) }; window.chatbase = new Proxy(window.chatbase, { get(target, prop) { if (prop === "q") { return target.q } return (...args) => target(prop, ...args) } }) } const onLoad = function () { const script = document.createElement("script"); script.src = "https://www.chatbase.co/embed.min.js"; script.id = "ly0mmLJ9oB_qAPes9CZHb"; script.domain = "www.chatbase.co"; document.body.appendChild(script) }; if (document.readyState === "complete") { onLoad() } else { window.addEventListener("load", onLoad) } })();</script>
+
     <script>
       (function () { if (!window.chatbase || window.chatbase("getState") !== "initialized") { window.chatbase = (...arguments) => { if (!window.chatbase.q) { window.chatbase.q = [] } window.chatbase.q.push(arguments) }; window.chatbase = new Proxy(window.chatbase, { get(target, prop) { if (prop === "q") { return target.q } return (...args) => target(prop, ...args) } }) } const onLoad = function () { const script = document.createElement("script"); script.src = "https://www.chatbase.co/embed.min.js"; script.id = "ly0mmLJ9oB_qAPes9CZHb"; script.domain = "www.chatbase.co"; document.body.appendChild(script) }; if (document.readyState === "complete") { onLoad() } else { window.addEventListener("load", onLoad) } })();
     </script>
+
   </body>
 </html>

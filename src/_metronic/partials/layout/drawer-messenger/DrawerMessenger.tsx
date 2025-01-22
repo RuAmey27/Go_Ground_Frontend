@@ -1,5 +1,5 @@
 
-import React, {FC} from 'react'
+import  {FC} from 'react'
 import {KTIcon} from '../../../helpers'
 import {ChatInner} from '../../chat/ChatInner'
 

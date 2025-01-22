@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Pagination from "../../Pagination";
 import axios from "axios";
-
+const API_URL = import.meta.env.VITE_APP_API_URL;
 // Interfaces (unchanged)
 interface Passenger {
   name: string;
@@ -25,7 +25,7 @@ interface Booking {
 let alretShown = false;
 const fetchAllBookings = async (setBookings: React.Dispatch<React.SetStateAction<Booking[]>>) => {
   try {
-    const response = await axios.get<Booking[]>("http://localhost:8080/booking/reports?reportType=user-reports", {
+    const response = await axios.get<Booking[]>(`${API_URL}/booking/reports?reportType=user-reports`, {
       withCredentials: true,
     });
     alretShown = false;
