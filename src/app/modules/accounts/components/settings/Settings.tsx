@@ -1,4 +1,4 @@
-// import React from 'react'
+import React from 'react'
 import {ProfileDetails} from './cards/ProfileDetails'
 import {SignInMethod} from './cards/SignInMethod'
 import {ConnectedAccounts} from './cards/ConnectedAccounts'

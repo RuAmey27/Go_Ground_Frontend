@@ -1,9 +1,9 @@
-// import { useIntl } from "react-intl";
-// import { KTIcon } from "../../../helpers";
-// import { AsideMenuItemWithSub } from "./AsideMenuItemWithSub";
+import { useIntl } from "react-intl";
+import { KTIcon } from "../../../helpers";
+import { AsideMenuItemWithSub } from "./AsideMenuItemWithSub";
 import { AsideMenuItem } from "./AsideMenuItem";
 export function AsideMenuMainUpdatedGroundUser() {
-  //const intl = useIntl();
+  const intl = useIntl();
   return (
     <>
       <AsideMenuItem
@@ -19,7 +19,6 @@ export function AsideMenuMainUpdatedGroundUser() {
       <AsideMenuItem to="Ground/homepage" icon="element-11" title="Book Now" />
        <AsideMenuItem to="/Profile" icon="element-11" title="User Profile" />
         <AsideMenuItem to="/BookingHistory" icon="element-11" title="Booking History" />
-        <AsideMenuItem to="/Ground/route" icon="element-11" title="map" />
       {/* <AsideMenuItem to="/Ground/bususer" icon="element-11" title="Users" /> */}
       <div className="menu-item">
         {/* <div className='menu-content pt-8 pb-2'>

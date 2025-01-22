@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-
-const API_URL = import.meta.env.VITE_APP_API_URL;
-
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js"; // Import Stripe components
 
-
+const API_URL = import.meta.env.VITE_APP_API_URL as string;
 
 interface PassengerDetailsFormData {
   name: string;
@@ -95,7 +92,6 @@ const PaymentDetails: React.FC = () => {
         "payment_method": "card"
       });
 
-
       const { clientSecret } = data;
 
       // Step 2: Confirm the PaymentIntent with Stripe
@@ -109,7 +105,6 @@ const PaymentDetails: React.FC = () => {
         payment_method: {
           card: cardElement,
         },
-
       });
 
       if (error) {
@@ -117,7 +112,6 @@ const PaymentDetails: React.FC = () => {
         alert("Payment failed. Please try again.");
       } else if (paymentIntent) {
         console.log("Payment successful:", paymentIntent);
-
 
         // Step 3: Update payment status on the backend
         const paymentId = paymentIntent.id;
@@ -134,7 +128,6 @@ const PaymentDetails: React.FC = () => {
         } catch (mailError) {
           console.error("Error sending mail:", mailError);
         }
-
 
         alert("Payment successful! Your booking is confirmed.");
         navigate("/BookingHistory"); // Redirect to booking history

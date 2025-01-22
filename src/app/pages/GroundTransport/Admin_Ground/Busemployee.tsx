@@ -4,9 +4,7 @@ import axios from "axios";
 import AddDriver from "./AddDriver";
 import DeleteModal from "./DeleteModal";
 import DriverDetailsModal from "./DriverDetailsModal";
-
-const API_URL = import.meta.env.VITE_APP_API_URL;
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 // Interface for Driver
 interface Driver {
   driverId?: number;
@@ -103,9 +101,7 @@ export const BusEmployeePage: React.FC = () => {
       await axios.put(
         `${API_URL}/admin/driver/update/${updatedDriver.driverId}`,
         updatedDriver,
-        { withCredentials: true,
-
-        }
+        { withCredentials: true }
       );
       console.log("Driver updated successfully");
     } catch (error) {

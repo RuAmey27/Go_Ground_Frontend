@@ -1,5 +1,5 @@
 
-// import React from 'react'
+import React from 'react'
 import {Card2} from '../../../../_metronic/partials/content/cards/Card2'
 import {IconUserModel} from '../ProfileModels'
 

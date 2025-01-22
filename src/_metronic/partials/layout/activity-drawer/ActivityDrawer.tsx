@@ -1,4 +1,4 @@
-import  {FC} from 'react'
+import React, {FC} from 'react'
 import {Link} from 'react-router-dom'
 import {KTIcon} from '../../../helpers'
 import {Item1} from '../../content/activity/Item1'

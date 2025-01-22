@@ -1,7 +1,7 @@
 import {createPopper, VirtualElement} from '@popperjs/core'
 import {
   getElementChild,
- // getElementParents,
+  getElementParents,
   getAttributeValueByBreakpoint,
   getUniqueIdWithPrefix,
   DataUtil,
@@ -13,7 +13,7 @@ import {
   DOMEventHandlerUtil,
   throttle,
   getHighestZindex,
-} from '../_utils'
+} from '../_utils/index'
 
 export interface MenuOptions {
   dropdown: {
@@ -155,48 +155,48 @@ class MenuComponent {
   }
 
   // Get item parent element
-  // private _getItemParentElement = (item: HTMLElement) => {
-  //   const sub = item.closest<HTMLElement>('.menu-sub')
-  //   if (!sub) {
-  //     return null
-  //   }
-  //
-  //   const subItem = DataUtil.get(sub, 'item')
-  //   if (subItem) {
-  //     return subItem as HTMLElement
-  //   }
-  //
-  //   const parentItem = sub.closest<HTMLElement>('.menu-item[data-kt-menu-trigger]')
-  //   if (sub && parentItem) {
-  //     return parentItem
-  //   }
-  //
-  //   return null
-  // }
+  private _getItemParentElement = (item: HTMLElement) => {
+    const sub = item.closest<HTMLElement>('.menu-sub')
+    if (!sub) {
+      return null
+    }
+
+    const subItem = DataUtil.get(sub, 'item')
+    if (subItem) {
+      return subItem as HTMLElement
+    }
+
+    const parentItem = sub.closest<HTMLElement>('.menu-item[data-kt-menu-trigger]')
+    if (sub && parentItem) {
+      return parentItem
+    }
+
+    return null
+  }
 
   // Get item parent elements
-  // private _getItemParentElements = (item: HTMLElement) => {
-  //   const parents: Array<HTMLElement> = []
-  //   let parent: HTMLElement | null
-  //   let i = 0
-  //   let buffer: HTMLElement = item
-  //
-  //   do {
-  //     parent = this._getItemParentElement(buffer)
-  //     if (parent) {
-  //       parents.push(parent)
-  //       buffer = parent as HTMLElement
-  //     }
-  //
-  //     i++
-  //   } while (parent !== null && i < 20)
-  //
-  //   if (this.triggerElement) {
-  //     parents.unshift(this.triggerElement)
-  //   }
-  //
-  //   return parents
-  // }
+  private _getItemParentElements = (item: HTMLElement) => {
+    const parents: Array<HTMLElement> = []
+    let parent: HTMLElement | null
+    let i = 0
+    let buffer: HTMLElement = item
+
+    do {
+      parent = this._getItemParentElement(buffer)
+      if (parent) {
+        parents.push(parent)
+        buffer = parent as HTMLElement
+      }
+
+      i++
+    } while (parent !== null && i < 20)
+
+    if (this.triggerElement) {
+      parents.unshift(this.triggerElement)
+    }
+
+    return parents
+  }
 
   // Prepare popper config for dropdown(see: https://popper.js.org/docs/v2/)
   private _getDropdownPopperConfig = (item: HTMLElement) => {
@@ -344,19 +344,19 @@ class MenuComponent {
   }
 
   // Test if item dropdown is permanent
-  // private _isItemDropdownPermanent = (item: HTMLElement) => {
-  //   return this._getItemOption(item, 'permanent') === true
-  // }
-  //
-  // // Test if item's parent is shown
-  // private _isItemParentShown = (item: HTMLElement) => {
-  //   return getElementParents(item, '.menu-item.show').length > 0
-  // }
+  private _isItemDropdownPermanent = (item: HTMLElement) => {
+    return this._getItemOption(item, 'permanent') === true
+  }
+
+  // Test if item's parent is shown
+  private _isItemParentShown = (item: HTMLElement) => {
+    return getElementParents(item, '.menu-item.show').length > 0
+  }
 
   // Test of it is item sub element
-  // private _isItemSubElement = (item: HTMLElement) => {
-  //   return item.classList.contains('menu-sub')
-  // }
+  private _isItemSubElement = (item: HTMLElement) => {
+    return item.classList.contains('menu-sub')
+  }
 
   // Test if item has sub
   private _hasItemSub = (item: HTMLElement) => {
@@ -364,18 +364,18 @@ class MenuComponent {
   }
 
   // Get link element
-  // private _getItemLinkElement = (item: HTMLElement) => {
-  //   return getElementChild(item, '.menu-link')
-  // }
+  private _getItemLinkElement = (item: HTMLElement) => {
+    return getElementChild(item, '.menu-link')
+  }
 
   // Get toggle element
-  // private _getItemToggleElement = (item: HTMLElement) => {
-  //   if (this.triggerElement) {
-  //     return this.triggerElement
-  //   }
-  //
-  //   return this._getItemLinkElement(item)
-  // }
+  private _getItemToggleElement = (item: HTMLElement) => {
+    if (this.triggerElement) {
+      return this.triggerElement
+    }
+
+    return this._getItemLinkElement(item)
+  }
 
   // Show item dropdown
   private _showDropdown = (item: HTMLElement) => {
@@ -605,7 +605,7 @@ class MenuComponent {
   }
 
   // TODO: not done
-  //private _destroy = () => {}
+  private _destroy = () => {}
 
   // Update all item state classes if item sub type changed
   private _update = () => {
@@ -665,7 +665,7 @@ class MenuComponent {
   }
 
   // Mouseout handle
-  private _mouseout = (element: HTMLElement) => {
+  private _mouseout = (element: HTMLElement, e: MouseEvent) => {
     const item = this._getItemElement(element)
     if (!item) {
       return
@@ -686,7 +686,7 @@ class MenuComponent {
   }
 
   // Mouseover handle
-  private _mouseover = (element: HTMLElement) => {
+  private _mouseover = (element: HTMLElement, e: MouseEvent) => {
     const item = this._getItemElement(element)
     if (!item) {
       return
@@ -709,7 +709,7 @@ class MenuComponent {
   }
 
   // Dismiss handler
-  private _dismiss = (element: HTMLElement) => {
+  private _dismiss = (element: HTMLElement, e: Event) => {
     const item = this._getItemElement(element)
     if (!item) {
       return
@@ -733,7 +733,7 @@ class MenuComponent {
   }
 
   // Link handler
-  private _link = () => {
+  private _link = (element: HTMLElement, e: Event) => {
     if (EventHandlerUtil.trigger(this.element, 'kt.menu.link.click') === false) {
       return
     }
@@ -766,26 +766,26 @@ class MenuComponent {
     return this._click(element, e)
   }
 
-  // public link = (element: HTMLElement, e: Event) => {
-  //   return this._link(element, e)
-  // }
+  public link = (element: HTMLElement, e: Event) => {
+    return this._link(element, e)
+  }
 
-  // public dismiss = (element: HTMLElement, e: Event) => {
-  //   return this._dismiss(element, e)
-  // }
+  public dismiss = (element: HTMLElement, e: Event) => {
+    return this._dismiss(element, e)
+  }
 
-  // public mouseover = (element: HTMLElement, e: Event) => {
-  //   return this._mouseover(element, e as MouseEvent)
-  // }
+  public mouseover = (element: HTMLElement, e: Event) => {
+    return this._mouseover(element, e as MouseEvent)
+  }
 
-  // public mouseout = (element: HTMLElement, e: Event) => {
-  //   return this._mouseout(element, e as MouseEvent)
-  // }
+  public mouseout = (element: HTMLElement, e: Event) => {
+    return this._mouseout(element, e as MouseEvent)
+  }
 
   // General Methods
-  // public getItemTriggerType = (item: HTMLElement) => {
-  //   return this._getItemOption(item, 'trigger')
-  // }
+  public getItemTriggerType = (item: HTMLElement) => {
+    return this._getItemOption(item, 'trigger')
+  }
 
   public getItemSubType = (element: HTMLElement) => {
     return this._getItemSubType(element)
@@ -807,46 +807,46 @@ class MenuComponent {
     return this._update()
   }
 
-  // public getElement = () => {
-  //   return this.element
-  // }
+  public getElement = () => {
+    return this.element
+  }
 
-  // public getItemLinkElement = (item: HTMLElement) => {
-  //   return this._getItemLinkElement(item)
-  // }
+  public getItemLinkElement = (item: HTMLElement) => {
+    return this._getItemLinkElement(item)
+  }
 
-  // public getItemToggleElement = (item: HTMLElement) => {
-  //   return this._getItemToggleElement(item)
-  // }
+  public getItemToggleElement = (item: HTMLElement) => {
+    return this._getItemToggleElement(item)
+  }
 
   public getItemSubElement = (item: HTMLElement) => {
     return this._getItemSubElement(item)
   }
 
-  // public getItemParentElements = (item: HTMLElement) => {
-  //   return this._getItemParentElements(item)
-  // }
-  //
-  // public isItemSubShown = (item: HTMLElement) => {
-  //   return this._isItemSubShown(item)
-  // }
-  //
-  // public isItemParentShown = (item: HTMLElement) => {
-  //   return this._isItemParentShown(item)
-  // }
-  //
-  // public getTriggerElement = () => {
-  //   return this.triggerElement
-  // }
-  //
-  // public isItemDropdownPermanent = (item: HTMLElement) => {
-  //   return this._isItemDropdownPermanent(item)
-  // }
-  //
-  // // Accordion Mode Methods
-  // public hideAccordions = (item: HTMLElement) => {
-  //   return this._hideAccordions(item)
-  // }
+  public getItemParentElements = (item: HTMLElement) => {
+    return this._getItemParentElements(item)
+  }
+
+  public isItemSubShown = (item: HTMLElement) => {
+    return this._isItemSubShown(item)
+  }
+
+  public isItemParentShown = (item: HTMLElement) => {
+    return this._isItemParentShown(item)
+  }
+
+  public getTriggerElement = () => {
+    return this.triggerElement
+  }
+
+  public isItemDropdownPermanent = (item: HTMLElement) => {
+    return this._isItemDropdownPermanent(item)
+  }
+
+  // Accordion Mode Methods
+  public hideAccordions = (item: HTMLElement) => {
+    return this._hideAccordions(item)
+  }
 
   // Event API
   public on = (name: string, handler: any) => {
@@ -922,19 +922,19 @@ class MenuComponent {
     }
   }
 
-  // public static updateDropdowns = () => {
-  //   const items = document.querySelectorAll('.show.menu-dropdown[data-kt-menu-trigger]')
-  //   if (items && items.length > 0) {
-  //     for (let i = 0, len = items.length; i < len; i++) {
-  //       const item = items[i]
-  //
-  //       if (DataUtil.has(item as HTMLElement, 'popper')) {
-  //         // @ts-ignore
-  //         DataUtil.get(item as HTMLElement, 'popper').forceUpdate()
-  //       }
-  //     }
-  //   }
-  // }
+  public static updateDropdowns = () => {
+    const items = document.querySelectorAll('.show.menu-dropdown[data-kt-menu-trigger]')
+    if (items && items.length > 0) {
+      for (let i = 0, len = items.length; i < len; i++) {
+        const item = items[i]
+
+        if (DataUtil.has(item as HTMLElement, 'popper')) {
+          // @ts-ignore
+          DataUtil.get(item as HTMLElement, 'popper').forceUpdate()
+        }
+      }
+    }
+  }
 
   // Global handlers
   public static createInstances = (selector: string) => {
@@ -960,7 +960,7 @@ class MenuComponent {
           const menuObj = MenuComponent.getInstance(item) as MenuComponent
           if (menuObj && menuObj.getItemSubType(item) === 'dropdown') {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            //const menu = menuObj.getElement()
+            const menu = menuObj.getElement()
             const sub = menuObj.getItemSubElement(item) as HTMLElement
             if (item === e.target || item.contains(e.target as HTMLElement)) {
               continue
@@ -996,8 +996,8 @@ class MenuComponent {
       function (this: HTMLElement, e: Event) {
         e.stopPropagation()
         const menu = MenuComponent.getInstance(this)
-        if (menu && menu._link) {
-          return menu._link()
+        if (menu && menu.link) {
+          return menu.link(this, e)
         }
       }
     )
@@ -1007,10 +1007,10 @@ class MenuComponent {
       document.body,
       '[data-kt-menu-dismiss="true"]',
       'click',
-      function (this: HTMLElement) {
+      function (this: HTMLElement, e: Event) {
         const menu = MenuComponent.getInstance(this) as MenuComponent
         if (menu) {
-          return menu._dismiss(this)
+          return menu.dismiss(this, e)
         }
       }
     )
@@ -1020,10 +1020,10 @@ class MenuComponent {
       document.body,
       '[data-kt-menu-trigger], .menu-sub',
       'mouseover',
-      function (this: HTMLElement) {
+      function (this: HTMLElement, e: Event) {
         const menu = MenuComponent.getInstance(this) as MenuComponent
         if (menu && menu.getItemSubType(this) === 'dropdown') {
-          return menu._mouseover(this)
+          return menu.mouseover(this, e)
         }
       }
     )
@@ -1033,10 +1033,10 @@ class MenuComponent {
       document.body,
       '[data-kt-menu-trigger], .menu-sub',
       'mouseout',
-      function (this: HTMLElement) {
+      function (this: HTMLElement, e: Event) {
         const menu = MenuComponent.getInstance(this) as MenuComponent
         if (menu && menu.getItemSubType(this) === 'dropdown') {
-          return menu._mouseout(this)
+          return menu.mouseout(this, e)
         }
       }
     )

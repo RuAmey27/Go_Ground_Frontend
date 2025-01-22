@@ -1,5 +1,5 @@
-// import React from "react";
-// import BusDetails from "./BusDetails";
+import React from "react";
+import BusDetails from "./BusDetails";
 import NavBarground from "./NavBarground";
 import FilterPanelGround from "./FilterPanelGround";
 import GroundCard from "./GroundCard";

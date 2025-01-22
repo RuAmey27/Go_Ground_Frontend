@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import EditCredentials from "./EditCredentials";
-const API_URL = import.meta.env.VITE_APP_API_URL;
+
 interface User {
   username: string;
   email: string;
@@ -14,7 +14,7 @@ export const EditCredentialsPage: React.FC = () => {
   // Fetch user details
   const fetchUserDetails = async () => {
     try {
-      const response = await axios.get<User>(`${API_URL}/user/get_user`, {
+      const response = await axios.get<User>("http://localhost:8080/user/get_user", {
         withCredentials: true,
       });
       setUser(response.data);
@@ -32,7 +32,7 @@ export const EditCredentialsPage: React.FC = () => {
   const handleUpdate = async (username: string, password?: string) => {
     try {
       await axios.put(
-        `${API_URL}/user/update`,
+        "http://localhost:8080/user/update",
         { username, password },
         { withCredentials: true }
       );

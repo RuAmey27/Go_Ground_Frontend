@@ -121,31 +121,31 @@ class ImageInputComponent {
     EventHandlerUtil.trigger(this.element, 'kt.imageinput.canceled', e)
   }
 
-  // private _remove = (e: Event) => {
-  //   e.preventDefault()
-  //
-  //   // Fire remove event
-  //   if (EventHandlerUtil.trigger(this.element, 'kt.imageinput.remove', e) === false) {
-  //     return
-  //   }
-  //
-  //   this.element.classList.remove('image-input-changed')
-  //   this.element.classList.add('image-input-empty')
-  //   if (this.wrapperElement) {
-  //     this.wrapperElement.style.setProperty('background-image', 'none')
-  //   }
-  //
-  //   if (this.inputElement) {
-  //     this.inputElement.value = ''
-  //   }
-  //
-  //   if (this.hiddenElement !== null) {
-  //     this.hiddenElement.value = '1'
-  //   }
-  //
-  //   // Fire removed event
-  //   EventHandlerUtil.trigger(this.element, 'kt.imageinput.removed', e)
-  // }
+  private _remove = (e: Event) => {
+    e.preventDefault()
+
+    // Fire remove event
+    if (EventHandlerUtil.trigger(this.element, 'kt.imageinput.remove', e) === false) {
+      return
+    }
+
+    this.element.classList.remove('image-input-changed')
+    this.element.classList.add('image-input-empty')
+    if (this.wrapperElement) {
+      this.wrapperElement.style.setProperty('background-image', 'none')
+    }
+
+    if (this.inputElement) {
+      this.inputElement.value = ''
+    }
+
+    if (this.hiddenElement !== null) {
+      this.hiddenElement.value = '1'
+    }
+
+    // Fire removed event
+    EventHandlerUtil.trigger(this.element, 'kt.imageinput.removed', e)
+  }
 
   ///////////////////////
   // ** Public API  ** //
@@ -154,9 +154,9 @@ class ImageInputComponent {
     return this.inputElement
   }
 
-  // public getElement(): HTMLElement {
-  //   return this.element
-  // }
+  public getElement(): HTMLElement {
+    return this.element
+  }
 
   // Event API
   public on = (name: string, handler: Function) => {

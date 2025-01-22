@@ -103,9 +103,9 @@ class PasswordMeterComponent {
     }
   }
 
-  // private checkScore(): number {
-  //   return 0
-  // }
+  private checkScore(): number {
+    return 0
+  }
 
   private checkLength(): boolean {
     if (this.inputElement) {
@@ -241,22 +241,22 @@ class PasswordMeterComponent {
     })
   }
 
-  // public static createInsance = (
-  //   selector: string = defaultPasswordMeterQueires.instanseQuery,
-  //   options: IPasswordMeterOptions = defaultPasswordMeterOptions,
-  //   queries: IPasswordMeterQueries = defaultPasswordMeterQueires
-  // ): PasswordMeterComponent | undefined => {
-  //   const element = document.body.querySelector(selector)
-  //   if (!element) {
-  //     return
-  //   }
-  //   const item = element as HTMLElement
-  //   let passwordMeter = PasswordMeterComponent.getInstance(item)
-  //   if (!passwordMeter) {
-  //     passwordMeter = new PasswordMeterComponent(item, options, queries)
-  //   }
-  //   return passwordMeter
-  // }
+  public static createInsance = (
+    selector: string = defaultPasswordMeterQueires.instanseQuery,
+    options: IPasswordMeterOptions = defaultPasswordMeterOptions,
+    queries: IPasswordMeterQueries = defaultPasswordMeterQueires
+  ): PasswordMeterComponent | undefined => {
+    const element = document.body.querySelector(selector)
+    if (!element) {
+      return
+    }
+    const item = element as HTMLElement
+    let passwordMeter = PasswordMeterComponent.getInstance(item)
+    if (!passwordMeter) {
+      passwordMeter = new PasswordMeterComponent(item, options, queries)
+    }
+    return passwordMeter
+  }
 
   public static bootstrap = (selector: string = defaultPasswordMeterQueires.instanseQuery) => {
     PasswordMeterComponent.createInstances(selector)

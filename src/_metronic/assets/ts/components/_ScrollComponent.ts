@@ -261,23 +261,23 @@ class ScrollComponent {
     })
   }
 
- // public static destroyAll(attr: string = '[data-kt-scroll="true"]') {}
+  public static destroyAll(attr: string = '[data-kt-scroll="true"]') {}
 
   public static bootstrap(attr: string = '[data-kt-scroll="true"]') {
     ScrollComponent.createInstances(attr)
     ScrollComponent.resize()
   }
 
-  // public static createInstance = (
-  //   element: HTMLElement,
-  //   options: ScrollOptions = defaultScrollOptions
-  // ): ScrollComponent | undefined => {
-  //   let scroll = ScrollComponent.getInstance(element)
-  //   if (!scroll) {
-  //     scroll = new ScrollComponent(element, options)
-  //   }
-  //   return scroll
-  // }
+  public static createInstance = (
+    element: HTMLElement,
+    options: ScrollOptions = defaultScrollOptions
+  ): ScrollComponent | undefined => {
+    let scroll = ScrollComponent.getInstance(element)
+    if (!scroll) {
+      scroll = new ScrollComponent(element, options)
+    }
+    return scroll
+  }
 
   public static reinitialization(attr: string = '[data-kt-scroll="true"]') {
     ScrollComponent.createInstances(attr)

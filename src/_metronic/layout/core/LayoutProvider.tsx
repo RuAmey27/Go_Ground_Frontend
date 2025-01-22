@@ -29,7 +29,7 @@ const LayoutContext = createContext<LayoutContextModel>({
   classes: getEmptyCssClasses(),
   attributes: getEmptyHTMLAttributes(),
   cssVariables: getEmptyCSSVariables(),
-  setLayout: () => {},
+  setLayout: (config: LayoutSetup) => {},
 })
 
 const enableSplashScreen = () => {

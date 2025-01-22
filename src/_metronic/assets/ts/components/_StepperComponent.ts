@@ -117,26 +117,26 @@ class StepperComponent {
     return index > this.currentStepIndex ? 'next' : 'previous'
   }
 
-  // private getStepContent = (index: number) => {
-  //   const content = this.element.querySelectorAll('[data-kt-stepper-element="content"]')
-  //   if (!content) {
-  //     return false
-  //   }
-  //
-  //   if (content[index - 1]) {
-  //     return content[index - 1]
-  //   }
-  //
-  //   return false
-  // }
+  private getStepContent = (index: number) => {
+    const content = this.element.querySelectorAll('[data-kt-stepper-element="content"]')
+    if (!content) {
+      return false
+    }
 
-  // private getLastStepIndex = () => {
-  //   return this.totalStepsNumber
-  // }
+    if (content[index - 1]) {
+      return content[index - 1]
+    }
 
-  // private getTotalStepsNumber = () => {
-  //   return this.totalStepsNumber
-  // }
+    return false
+  }
+
+  private getLastStepIndex = () => {
+    return this.totalStepsNumber
+  }
+
+  private getTotalStepsNumber = () => {
+    return this.totalStepsNumber
+  }
 
   private refreshUI = () => {
     let state = ''
@@ -206,9 +206,9 @@ class StepperComponent {
     return this.currentStepIndex === 1
   }
 
-  // private isBetweenStep = () => {
-  //   return this.isLastStep() === false && this.isFirstStep() === false
-  // }
+  private isBetweenStep = () => {
+    return this.isLastStep() === false && this.isFirstStep() === false
+  }
 
   //   ///////////////////////
   //   // ** Public API  ** //
@@ -227,13 +227,13 @@ class StepperComponent {
     return this.goto(this.getPrevStepIndex())
   }
 
-  // public goFirst = () => {
-  //   return this.goto(1)
-  // }
-  //
-  // public goLast = () => {
-  //   return this.goto(this.getLastStepIndex())
-  // }
+  public goFirst = () => {
+    return this.goto(1)
+  }
+
+  public goLast = () => {
+    return this.goto(this.getLastStepIndex())
+  }
 
   public getCurrentStepIndex = () => {
     return this.currentStepIndex
@@ -259,9 +259,9 @@ class StepperComponent {
     }
   }
 
-  // public getElement = (index: number) => {
-  //   return this.element
-  // }
+  public getElement = (index: number) => {
+    return this.element
+  }
 
   // Event API
   public on = (name: string, handler: Function) => {
