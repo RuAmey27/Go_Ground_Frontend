@@ -49,6 +49,8 @@ import EditCredentialsPage from "../pages/GroundTransport/UserUI_G/EditCredentia
 import {UserHistory} from "../pages/GroundTransport/UserUI_G/UserHistory.tsx";
 import DirectionsMap from "../pages/GroundTransport/UserUI_G/DirectionsMap.js";
 import MapboxCDNComponent from "../pages/GroundTransport/UserUI_G/MapboxCDNComponent.tsx";
+import { PaymentPage } from "../pages/GroundTransport/Admin_Ground/Payments";
+
 
 const PrivateRoutes = () => {
   // const ProfilePage = lazy(() => import("../modules/profile/ProfilePage"));
@@ -115,6 +117,7 @@ const PrivateRoutes = () => {
         <Route path="Ground/bususer" element={<BusUserPage />}></Route>
         <Route path="Ground/busbooking" element={<BusBookingPage />}></Route>
         <Route path="Ground/routes" element={<RouteDetail />}></Route>
+        <Route path="Ground/payments" element={<PaymentPage/>}/>
         <Route path="Ground/FAQ" element={<FAQGroudPage />}></Route>
         <Route path="Ground/route" element={<MapboxCDNComponent />}></Route>
 

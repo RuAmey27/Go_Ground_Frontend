@@ -142,6 +142,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../core/Auth.tsx";
 import axios from "axios";
 import clsx from "clsx";
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 interface LoginBasicInfo {
   email: string;
@@ -174,14 +175,14 @@ const Login: React.FC = () => {
     const loginData: LoginBasicInfo = { email, password };
 
     try {
-      const response = await axios.post("http://localhost:8080/login", loginData, {
+      const response = await axios.post(`${API_URL}/login`, loginData, {
         withCredentials: true,
       });
 
       if (response.status === 200) {
         saveAuth({ withCredentials: true });
 
-        const sessionResponse = await axios.get("http://localhost:8080/api/session", {
+        const sessionResponse = await axios.get(`${API_URL}/api/session`, {
           withCredentials: true,
         });
 

@@ -78,6 +78,14 @@ export const BusUserPage: React.FC = () => {
   if (loading) {
     return <div>Loading...</div>;
   }
+  const handleAddUser = (newUser: User) => {
+    const newUserWithId = { ...newUser, id: users.length + 1 };
+    setUsers([...users, newUserWithId]);
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="card">

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-
+const API_URL = import.meta.env.VITE_APP_API_URL
 // Define the structure for passenger details and booking details
 interface PassengerDetailsFormData {
   name: string;
@@ -60,7 +60,7 @@ const ConfirmBooking: React.FC = () => {
 
     try {
       // Make the POST request to confirm the booking
-      const response = await axios.post("http://localhost:8080/booking/add", bookingData);
+      const response = await axios.post(`${API_URL}/booking/add`, bookingData);
 
       if (response.status === 200 && response.data.bookingId) {
         const bookingId = response.data.bookingId; // Extract bookingId from the response

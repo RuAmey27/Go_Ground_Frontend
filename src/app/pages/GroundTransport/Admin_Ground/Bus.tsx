@@ -141,6 +141,47 @@ export const BusesPage: React.FC = () => {
                       {vehicle.route.source} → {vehicle.route.destination}
                     </td>
                     <td>{vehicle.route.distance} km</td>
+                    <td>
+                    <div className="d-flex flex-row align-items-center">
+                      <button
+                      className="btn btn-icon btn-bg-light btn-sm me-1"
+                      //onClick={() => handleViewClick(employee)}
+                    >
+                      <i className="ki-duotone ki-eye fs-3 text-primary">
+                        <span className="path1"></span>
+                        <span className="path2"></span>
+                        <span className="path3"></span>
+                      </i>
+                    </button>
+
+                        <button
+                        type="button"
+                        className="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1"
+                        //onClick={() => handleEditClick(employee)}
+                      >
+                        <i className="ki-duotone ki-pencil fs-3 text-primary">
+                          <span className="path1"></span>
+                          <span className="path2"></span>
+                        </i>
+                      </button>
+                        <button
+                        type="button"
+                        className="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1"
+                        // onClick={() => {
+                        //   setSelectedDriverId(employee.driverId || null);
+                        //   setShowDeleteModal(true);
+                        // }}
+                      >
+                        <i className="ki-duotone ki-trash fs-3 text-danger">
+                          <span className="path1"></span>
+                          <span className="path2"></span>
+                          <span className="path3"></span>
+                          <span className="path4"></span>
+                          <span className="path5"></span>
+                        </i>
+                      </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
             </tbody>
