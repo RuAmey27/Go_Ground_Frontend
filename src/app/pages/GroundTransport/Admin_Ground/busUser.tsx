@@ -24,12 +24,12 @@ export const BusUserPage: React.FC = () => {
     const fetchUsers = async () => {
       try {
         const response = await axios.get(`${API_URL}/admin/getAllUsers`);
-
+        console.log(response.data);
         const mappedUsers = response.data.map((user: any) => ({
           id: user.userId,
           name: user.username || "Unknown", // Fallback for missing name
           email: user.email || "No Email", // Fallback for missing email
-          role:  user.role.name || "Unknown", // Handle non-string roles
+          role:  user.role || "Unknown", // Handle non-string roles
           active: true, // Default active status
         }));
 

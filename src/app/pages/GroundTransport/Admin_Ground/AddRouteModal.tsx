@@ -21,21 +21,52 @@ const AddRoute: React.FC<AddRouteProps> = ({ onClose, onAdd }) => {
   });
 
   const [errors, setErrors] = useState<{ source?: string; destination?: string; distance?: string }>({});
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [currentField, setCurrentField] = useState<"source" | "destination" | null>(null);
+
+  const accessToken = import.meta.env.VITE_MAPBOX_API_KEY;
 
   // Input Change Handler
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  const handleInputChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target;
     setNewRoute({ ...newRoute, [name]: value });
-    setErrors({ ...errors, [name]: "" }); // Clear errors on change
+    setErrors({ ...errors, [name]: "" });
+
+    if (name === "source" || name === "destination") {
+      setCurrentField(name);
+
+      if (value.length > 2) {
+        const encodedValue = encodeURIComponent(value);
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedValue}.json?access_token=${accessToken}`;
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+          const suggestions = data.features?.map((feature: any) => feature.place_name) || [];
+          console.log(suggestions);
+          setSuggestions(suggestions);
+        } catch (error) {
+          console.error("Error fetching suggestions:", error);
+        }
+      } else {
+        setSuggestions([]);
+      }
+    }
+  };
+
+  // Select Suggestion Handler
+  const handleSuggestionClick = (suggestion: string) => {
+    if (currentField) {
+      setNewRoute({ ...newRoute, [currentField]: suggestion });
+      setSuggestions([]);
+    }
   };
 
   // Form Submission Handler
   const handleAddRoute = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate inputs
     const newErrors: { source?: string; destination?: string; distance?: string } = {};
     if (!newRoute.source.trim()) newErrors.source = "Source is required.";
     if (!newRoute.destination.trim()) newErrors.destination = "Destination is required.";
@@ -46,9 +77,8 @@ const AddRoute: React.FC<AddRouteProps> = ({ onClose, onAdd }) => {
       return;
     }
 
-    // Pass the new route to the parent component
     onAdd(newRoute);
-    onClose(); // Close the modal
+    onClose();
   };
 
   return (
@@ -85,9 +115,7 @@ const AddRoute: React.FC<AddRouteProps> = ({ onClose, onAdd }) => {
                   onChange={handleInputChange}
                   required
                 />
-                {errors.source && (
-                  <div className="invalid-feedback">{errors.source}</div>
-                )}
+                {errors.source && <div className="invalid-feedback">{errors.source}</div>}
               </div>
 
               {/* Destination Field */}
@@ -104,10 +132,23 @@ const AddRoute: React.FC<AddRouteProps> = ({ onClose, onAdd }) => {
                   onChange={handleInputChange}
                   required
                 />
-                {errors.destination && (
-                  <div className="invalid-feedback">{errors.destination}</div>
-                )}
+                {errors.destination && <div className="invalid-feedback">{errors.destination}</div>}
               </div>
+
+              {/* Suggestions List */}
+              {suggestions.length > 0 && (
+                <ul className="list-group">
+                  {suggestions.map((suggestion, index) => (
+                    <li
+                      key={index}
+                      className="list-group-item"
+                      onClick={() => handleSuggestionClick(suggestion)}
+                    >
+                      {suggestion}
+                    </li>
+                  ))}
+                </ul>
+              )}
 
               {/* Distance Field */}
               <div className="mb-3">
@@ -120,15 +161,14 @@ const AddRoute: React.FC<AddRouteProps> = ({ onClose, onAdd }) => {
                   id="distance"
                   name="distance"
                   value={newRoute.distance}
-                  onChange={handleInputChange}
+                  onChange={(e) =>
+                    setNewRoute({ ...newRoute, distance: parseInt(e.target.value) })
+                  }
                   required
                 />
-                {errors.distance && (
-                  <div className="invalid-feedback">{errors.distance}</div>
-                )}
+                {errors.distance && <div className="invalid-feedback">{errors.distance}</div>}
               </div>
 
-              {/* Submit Button */}
               <button type="submit" className="btn btn-primary">
                 Add Route
               </button>

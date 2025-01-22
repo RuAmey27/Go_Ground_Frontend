@@ -1,18 +1,32 @@
-# Use Node.js official image as base
-FROM node:22.12.0
+# Use Ubuntu as the base image
+FROM ubuntu:latest
+
+# Set author label
 LABEL authors="Amey Pande"
-# Set the working directory inside the container
+
+# Set working directory inside the container
 WORKDIR /app
 
-# Copy the package.json and package-lock.json (or yarn.lock) first to leverage Docker cache
+# Update and install Node.js, npm and other dependencies
+RUN apt-get update && apt-get install -y \
+  curl \
+  gnupg2 \
+  ca-certificates \
+  lsb-release \
+  && curl -sL https://deb.nodesource.com/setup_18.x | bash - \
+  && apt-get install -y nodejs \
+  && apt-get install -y git
+
+# Copy package.json and package-lock.json (or yarn.lock) to leverage Docker cache
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install --legacy-peer-deps
+RUN npm install
 
-# Copy the rest of your application files into the container
+# Copy the rest of the application files into the container
 COPY . .
 
+COPY .env .env
 # Expose the port that Vite will run on (default is 5173)
 EXPOSE 5173
 
