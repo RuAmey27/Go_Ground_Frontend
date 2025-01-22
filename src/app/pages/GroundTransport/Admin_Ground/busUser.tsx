@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import Pagination from "../../Pagination";
 // import AddBusUser from "./AddBusUser";
 import axios from "axios";
-const API_URL = import.meta.env.VITE_APP_API_URL as string;
+
+const API_URL = import.meta.env.VITE_APP_API_URL;
+
 
 interface User {
   id: number;
@@ -16,8 +18,10 @@ export const BusUserPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [search, setSearch] = useState("");
-  const [showAddUserModal, setShowAddUserModal] = useState(false);
-  const [status, setStatus] = useState("");
+
+  // const [showAddUserModal, setShowAddUserModal] = useState(false);
+  // const [status, setStatus] = useState("");
+
   const [loading, setLoading] = useState(true);
 
   // Fetch users from API
@@ -25,24 +29,17 @@ export const BusUserPage: React.FC = () => {
     const fetchUsers = async () => {
       try {
         const response = await axios.get(`${API_URL}/admin/getAllUsers`);
-        console.log("API URL IS: ",API_URL)
-        
-        // Log the entire response for debugging
-        console.log("API Response:", response.data);
-  
-        const mappedUsers = response.data.map((user: any) => {
-          // Log user object for debugging
-          console.log("Processing user:", user);
-  
-          return {
-            id: user.userId,
-            name: user.username || "Unknown", // Fallback for missing name
-            email: user.email || "No Email", // Fallback for missing email
-            role: user?.role || "No Role", // Handle missing role
-            active: true, // Default active status
-          };
-        });
-  
+
+        console.log(response.data);
+        const mappedUsers = response.data.map((user: any) => ({
+          id: user.userId,
+          name: user.username || "Unknown", // Fallback for missing name
+          email: user.email || "No Email", // Fallback for missing email
+          role:  user.role || "Unknown", // Handle non-string roles
+          active: true, // Default active status
+        }));
+
+
         setUsers(mappedUsers);
       } catch (error) {
         console.error("Failed to fetch users:", error);
@@ -50,12 +47,12 @@ export const BusUserPage: React.FC = () => {
         setLoading(false);
       }
     };
-  
+
+
     fetchUsers();
   }, []);
-  
-  
-  
+
+
 
   const filteredUsers = users.filter((user) =>
     user?.name.toLowerCase().includes(search.toLowerCase())
@@ -74,18 +71,21 @@ export const BusUserPage: React.FC = () => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setSearch(e.target.value);
 
-  const toggleActiveStatus = (id: number) => {
-    setUsers(
-      users.map((user) =>
-        user.id === id ? { ...user, active: !user.active } : user
-      )
-    );
-  };
+  // const toggleActiveStatus = (id: number) => {
+  //   setUsers(
+  //     users.map((user) =>
+  //       user.id === id ? { ...user, active: !user.active } : user
+  //     )
+  //   );
+  // };
+
+
 
   const handleAddUser = (newUser: User) => {
     const newUserWithId = { ...newUser, id: users.length + 1 };
     setUsers([...users, newUserWithId]);
   };
+
 
   if (loading) {
     return <div>Loading...</div>;
@@ -111,7 +111,9 @@ export const BusUserPage: React.FC = () => {
             onChange={handleSearchChange}
           />
 
-          
+
+
+
 
           {/* <button
             type="button"
@@ -189,7 +191,7 @@ export const BusUserPage: React.FC = () => {
           </table>
         </div>
       </div>
-
+                <p>This is user page</p>
       {/* Pagination */}
       <div className="card-footer">
         <Pagination
@@ -208,6 +210,8 @@ export const BusUserPage: React.FC = () => {
           onAdd={handleAddUser}
         />
       )} */}
-    </div>
-  );
+
+    </div>
+  );
 };
+
