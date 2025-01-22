@@ -89,6 +89,7 @@ import { AuthModel, UserModel } from "./_models";
 import * as authHelper from "./AuthHelpers";
 import { WithChildren } from "../../../../_metronic/helpers";
 import axios from "axios";
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 type AuthContextProps = {
   auth: AuthModel | undefined;
@@ -126,7 +127,7 @@ const AuthProvider: FC<WithChildren> = ({ children }) => {
   };
 
   const logout = () => {
-    axios.post("http://localhost:8080/logout", {
+    axios.post(`${API_URL}/logout`, {
       method: "POST",
       credentials: "include",
     });
