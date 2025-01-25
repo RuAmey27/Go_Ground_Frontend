@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 // Route Interface
 interface Route {
@@ -21,15 +21,70 @@ const AddRoute: React.FC<AddRouteProps> = ({ onClose, onAdd }) => {
   });
 
   const [errors, setErrors] = useState<{ source?: string; destination?: string; distance?: string }>({});
+  const [suggestions, setSuggestions] = useState<{ source: any[]; destination: any[] }>({ source: [], destination: [] });
+  const [coordinates, setCoordinates] = useState<{ source?: [number, number]; destination?: [number, number] }>({});
+  const [currentField, setCurrentField] = useState<"source" | "destination">("source");
+
+  const accessToken = import.meta.env.VITE_MAPBOX_API_KEY;
 
   // Input Change Handler
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setNewRoute({ ...newRoute, [name]: value });
-    setErrors({ ...errors, [name]: "" }); // Clear errors on change
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target as { name: "source" | "destination"; value: string };
+    setNewRoute((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+    setCurrentField(name);
+
+    if (value.length > 2) {
+      const encodedValue = encodeURIComponent(value);
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedValue}.json?access_token=${accessToken}`;
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const fetchedSuggestions = data.features || [];
+        setSuggestions((prev) => ({ ...prev, [name]: fetchedSuggestions }));
+      } catch (error) {
+        console.error("Error fetching suggestions:", error);
+      }
+    } else {
+      setSuggestions((prev) => ({ ...prev, [name]: [] }));
+    }
   };
+
+  // Select Suggestion Handler
+  const handleSuggestionClick = (suggestion: any) => {
+    const { place_name, geometry } = suggestion;
+    if (place_name && geometry?.coordinates) {
+      setNewRoute((prev) => ({ ...prev, [currentField]: place_name }));
+      setCoordinates((prev) => ({ ...prev, [currentField]: geometry.coordinates }));
+      setSuggestions((prev) => ({ ...prev, [currentField]: [] }));
+    }
+  };
+
+  // Calculate Distance using Mapbox Directions API
+  const calculateDistance = async () => {
+    const { source, destination } = coordinates;
+    if (source && destination) {
+      const [sourceLng, sourceLat] = source;
+      const [destinationLng, destinationLat] = destination;
+
+      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${sourceLng},${sourceLat};${destinationLng},${destinationLat}?access_token=${accessToken}&geometries=geojson`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const distance = data.routes[0]?.distance || 0; // Distance in meters
+        setNewRoute((prevRoute) => ({ ...prevRoute, distance: distance / 1000 })); // Convert to kilometers
+      } catch (error) {
+        console.error("Error fetching distance:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (coordinates.source && coordinates.destination) {
+      calculateDistance();
+    }
+  }, [coordinates]);
 
   // Form Submission Handler
   const handleAddRoute = (e: React.FormEvent) => {
@@ -71,11 +126,8 @@ const AddRoute: React.FC<AddRouteProps> = ({ onClose, onAdd }) => {
           </div>
           <div className="modal-body">
             <form onSubmit={handleAddRoute}>
-              {/* Source Field */}
               <div className="mb-3">
-                <label htmlFor="source" className="form-label">
-                  Source
-                </label>
+                <label htmlFor="source" className="form-label">Source</label>
                 <input
                   type="text"
                   className={`form-control ${errors.source ? "is-invalid" : ""}`}
@@ -90,11 +142,8 @@ const AddRoute: React.FC<AddRouteProps> = ({ onClose, onAdd }) => {
                 )}
               </div>
 
-              {/* Destination Field */}
               <div className="mb-3">
-                <label htmlFor="destination" className="form-label">
-                  Destination
-                </label>
+                <label htmlFor="destination" className="form-label">Destination</label>
                 <input
                   type="text"
                   className={`form-control ${errors.destination ? "is-invalid" : ""}`}
@@ -109,29 +158,42 @@ const AddRoute: React.FC<AddRouteProps> = ({ onClose, onAdd }) => {
                 )}
               </div>
 
-              {/* Distance Field */}
+
+              {suggestions[currentField]?.length > 0 && (
+                <ul className="list-group">
+                  {suggestions[currentField].map((suggestion, index) => (
+                    <li
+                      key={index}
+                      className="list-group-item"
+                      onClick={() => handleSuggestionClick(suggestion)}
+                    >
+                      {suggestion.place_name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+
               <div className="mb-3">
-                <label htmlFor="distance" className="form-label">
-                  Distance
-                </label>
+                <label htmlFor="distance" className="form-label">Distance (in km)</label>
                 <input
                   type="number"
                   className={`form-control ${errors.distance ? "is-invalid" : ""}`}
                   id="distance"
                   name="distance"
                   value={newRoute.distance}
-                  onChange={handleInputChange}
-                  required
+
+                  readOnly
+
                 />
                 {errors.distance && (
                   <div className="invalid-feedback">{errors.distance}</div>
                 )}
               </div>
 
-              {/* Submit Button */}
-              <button type="submit" className="btn btn-primary">
-                Add Route
-              </button>
+
+              <button type="submit" className="btn btn-primary">Add Route</button>
+
             </form>
           </div>
         </div>
@@ -141,3 +203,4 @@ const AddRoute: React.FC<AddRouteProps> = ({ onClose, onAdd }) => {
 };
 
 export default AddRoute;
+

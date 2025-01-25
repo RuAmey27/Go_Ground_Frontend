@@ -51,6 +51,10 @@ import PaymentDetails from "../pages/GroundTransport/UserUI_G/PaymentDetails";
 import ConfirmBooking from "../pages/GroundTransport/UserUI_G/ConfirmBooking";
 import EditCredentialsPage from "../pages/GroundTransport/UserUI_G/EditCredentialsPage.tsx";
 import {UserHistory} from "../pages/GroundTransport/UserUI_G/UserHistory.tsx";
+
+import DirectionsMap from "../pages/GroundTransport/UserUI_G/DirectionsMap.js";
+import MapboxCDNComponent from "../pages/GroundTransport/UserUI_G/MapboxCDNComponent.tsx";
+
 import { PaymentPage } from "../pages/GroundTransport/Admin_Ground/Payments";
 
 
