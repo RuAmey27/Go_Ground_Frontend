@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+
 const API_URL = import.meta.env.VITE_APP_API_URL;
+const accessToken = import.meta.env.VITE_MAPBOX_API_KEY;
+
 interface Route {
   id: number;
   source: string;
@@ -11,88 +14,141 @@ interface Route {
   vehicleType: string;
 }
 
-interface BusBookingFormData {
-  source: string;
-  destination: string;
-  vehicleType: string;
-  date: string;
-}
 
+interface BusBookingFormData {
+    source: string;
+    destination: string;
+    vehicleType: string;
+    date: string;
+  }
 const BusBooking: React.FC = () => {
-  const [source, setSource] = useState<string>("");
-  const [destination, setDestination] = useState<string>("");
-  const [vehicleType, setVehicleType] = useState<string>("");
-  const [date, setDate] = useState<string>("");
-  const [availableRoutes, setAvailableRoutes] = useState<Route[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [vehicleStatus, setVehicleStatus] = useState<string | null>(null);
-  const [selectedRouteId, setSelectedRouteId] = useState<number | null>(null);
-  const navigate = useNavigate();
+    const [source, setSource] = useState<string>("");
+    const [destination, setDestination] = useState<string>("");
+    const [vehicleType, setVehicleType] = useState<string>("");
+    const [date, setDate] = useState<string>("");
+    const [suggestions, setSuggestions] = useState<{ source: any[]; destination: any[] }>({
+      source: [],
+      destination: [],
+    });
+    const [loading, setLoading] = useState<boolean>(false);
+    const [availableRoutes, setAvailableRoutes] = useState<Route[]>([]);
+    const [vehicleStatus, setVehicleStatus] = useState<string | null>(null);
+    const [selectedRouteId, setSelectedRouteId] = useState<number | null>(null);
+    const navigate = useNavigate();
+
+    const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target as { name: "source" | "destination"; value: string };
+      if (name === "source") setSource(value);
+      if (name === "destination") setDestination(value);
+
+      if (value.length > 2) {
+        const encodedValue = encodeURIComponent(value);
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedValue}.json?access_token=${accessToken}`;
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+          const fetchedSuggestions = data.features || [];
+          setSuggestions((prev) => ({ ...prev, [name]: fetchedSuggestions }));
+        } catch (error) {
+          console.error("Error fetching suggestions:", error);
+        }
+      } else {
+        setSuggestions((prev) => ({ ...prev, [name]: [] }));
+      }
+    };
+
+    const handleSuggestionClick = (suggestion: any, field: "source" | "destination") => {
+      const { place_name } = suggestion;
+      if (field === "source") setSource(place_name);
+      if (field === "destination") setDestination(place_name);
+      setSuggestions((prev) => ({ ...prev, [field]: [] }));
+    };
 
   const handleSearch = async () => {
+    if (!source || !destination || !vehicleType || !date) {
+      alert("Please fill in all fields");
+      return;
+    }
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${API_URL}/user/search_routes`,
-        { source, destination, vehicleType, date },
-        {
-          withCredentials: true,
-          headers: {
-            "X-Requested-With": "XMLHttpRequest",
-          },
+        const response = await axios.post(
+          `${API_URL}/user/search_routes`,
+          { source, destination, vehicleType, date },
+          {
+            withCredentials: true,
+            headers: {
+              "X-Requested-With": "XMLHttpRequest",
+            },
+          }
+        );
+
+        if (Array.isArray(response.data)) {
+          setAvailableRoutes(response.data);
+        } else {
+          setAvailableRoutes([]);
         }
-      );
-
-      if (Array.isArray(response.data)) {
-        setAvailableRoutes(response.data);
-      } else {
-        setAvailableRoutes([]);
+      } catch (error) {
+        alert("Failed to fetch available routes. Please try again.");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      alert("Failed to fetch available routes. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  const checkVehicleAvailability = async (routeId: number) => {
-    try {
-      const response = await axios.get(
-        `${API_URL}/vehicle/searchVehicle?type=${vehicleType}&routeId=${routeId}`
-      );
+    const checkVehicleAvailability = async (routeId: number) => {
+        try {
+          const response = await axios.get(
+            `${API_URL}/vehicle/searchVehicle?type=${vehicleType}&routeId=${routeId}`
+          );
 
-      if (response.status === 200 && response.data === "Vehicle is valid and available") {
-        setVehicleStatus("available");
-      } else {
-        setVehicleStatus("unavailable");
-      }
-    } catch (error: any) {
-      setVehicleStatus("unavailable");
-    }
-  };
+          if (response.status === 200 && response.data === "Vehicle is valid and available") {
+            setVehicleStatus("available");
+          } else {
+            setVehicleStatus("unavailable");
+          }
+        } catch (error: any) {
+          setVehicleStatus("unavailable");
+        }
+      };
 
-  const handleBook = async (routeId: number) => {
-    setSelectedRouteId(routeId);
-    await checkVehicleAvailability(routeId);
-  };
+      const handleBook = async (routeId: number) => {
+        setSelectedRouteId(routeId);
+        await checkVehicleAvailability(routeId);
+      };
 
-  const handleProceed = () => {
-    const formData: BusBookingFormData = { source, destination, vehicleType, date };
-    if (selectedRouteId) {
-      navigate(`/passenger-details/${selectedRouteId}`, { state: { routeId: selectedRouteId, formData } });
-    }
-    setVehicleStatus(null); // Close modal
-  };
+      const handleProceed = () => {
+        const formData: BusBookingFormData = { source, destination, vehicleType, date };
+        if (selectedRouteId) {
+          navigate(`/passenger-details/${selectedRouteId}`, { state: { routeId: selectedRouteId, formData } });
+        }
+        setVehicleStatus(null); // Close modal
+      };
 
-  const handleCloseModal = () => {
-    setVehicleStatus(null);
-    setSelectedRouteId(null);
-  };
+
+      const handleCloseModal = () => {
+        setVehicleStatus(null);
+        setSelectedRouteId(null);
+      };
 
   return (
     <div>
       <style>{`
-        .container {
+        .suggestion-list {
+          position: absolute;
+          background: white;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          max-height: 150px;
+          overflow-y: auto;
+          z-index: 1000;
+        }
+        .suggestion-item {
+          padding: 10px;
+          cursor: pointer;
+        }
+        .suggestion-item:hover {
+          background: #f0f0f0;
+        }
+          .container {
           margin: 30px auto;
           max-width: 85%;
           font-family: 'Arial', sans-serif;
@@ -213,37 +269,67 @@ const BusBooking: React.FC = () => {
       <div className="container mt-4">
         <div className="card">
           <div className="card-header">
-            <h3 className="card-title" style={{ fontWeight: 'bold' }}>Booking Form</h3>
+            <h3 className="card-title">Bus Booking Form</h3>
           </div>
           <div className="card-body">
-            <div className="row align-items-end">
-              <div className="col-md-3">
+            <div className="row">
+              <div className="col-md-6 position-relative">
                 <label htmlFor="source" className="form-label">
                   Source
                 </label>
                 <input
                   type="text"
+                  name="source"
                   id="source"
                   className="form-control"
                   placeholder="Enter Source"
                   value={source}
-                  onChange={(e) => setSource(e.target.value)}
+                  onChange={handleInputChange}
                 />
+                {suggestions.source.length > 0 && (
+                  <div className="suggestion-list">
+                    {suggestions.source.map((sug, index) => (
+                      <div
+                        key={index}
+                        className="suggestion-item"
+                        onClick={() => handleSuggestionClick(sug, "source")}
+                      >
+                        {sug.place_name}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div className="col-md-3">
+              <div className="col-md-6 position-relative">
                 <label htmlFor="destination" className="form-label">
                   Destination
                 </label>
                 <input
                   type="text"
+                  name="destination"
                   id="destination"
                   className="form-control"
                   placeholder="Enter Destination"
                   value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
+                  onChange={handleInputChange}
                 />
+                {suggestions.destination.length > 0 && (
+                  <div className="suggestion-list">
+                    {suggestions.destination.map((sug, index) => (
+                      <div
+                        key={index}
+                        className="suggestion-item"
+                        onClick={() => handleSuggestionClick(sug, "destination")}
+                      >
+                        {sug.place_name}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div className="col-md-3">
+            </div>
+            <div className="row mt-3">
+              <div className="col-md-6">
                 <label htmlFor="vehicleType" className="form-label">
                   Vehicle Type
                 </label>
@@ -258,7 +344,7 @@ const BusBooking: React.FC = () => {
                   <option value="cab">Cab</option>
                 </select>
               </div>
-              <div className="col-md-3">
+              <div className="col-md-6">
                 <label htmlFor="date" className="form-label">
                   Date
                 </label>
@@ -271,7 +357,7 @@ const BusBooking: React.FC = () => {
                 />
               </div>
             </div>
-            <div className="mt-3 d-flex justify-content-end">
+            <div className="mt-4">
               <button
                 className="btn btn-primary"
                 onClick={handleSearch}
@@ -282,6 +368,7 @@ const BusBooking: React.FC = () => {
             </div>
           </div>
         </div>
+
         <div className="card mt-4">
           <div className="card-body">
             <h2>Available Routes</h2>
@@ -291,28 +378,26 @@ const BusBooking: React.FC = () => {
               <table className="table table-striped table-bordered">
                 <thead className="table-primary">
                   <tr>
-                    <th>ID</th>
                     <th>Source</th>
                     <th>Destination</th>
+                    <th>Distance</th>
                     <th>Date</th>
                     <th>Vehicle Type</th>
-                    <th>Distance (km)</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {availableRoutes.map((route) => (
                     <tr key={route.id}>
-                      <td>{route.id}</td>
                       <td>{route.source}</td>
                       <td>{route.destination}</td>
+                      <td>{route.distance} km</td>
                       <td>{date}</td>
                       <td>{vehicleType}</td>
-                      <td>{route.distance}</td>
                       <td>
                         <button
+                          className="btn btn-success"
                           onClick={() => handleBook(route.id)}
-                          className="btn btn-success btn-sm"
                         >
                           Book
                         </button>
@@ -323,156 +408,25 @@ const BusBooking: React.FC = () => {
               </table>
             )}
           </div>
-    <div className="container mt-4">
-      <div className="card">
-        <div className="card-header">
-          <h3 className="card-title">Bus Booking Form</h3>
         </div>
-        <div className="card-body">
-          <div className="row align-items-end">
-            <div className="col-md-3">
-              <label htmlFor="source" className="form-label">
-                Source
-              </label>
-              <input
-                type="text"
-                id="source"
-                className="form-control"
-                placeholder="Enter Source"
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-              />
-            </div>
-
-            <div className="col-md-3">
-              <label htmlFor="destination" className="form-label">
-                Destination
-              </label>
-              <input
-                type="text"
-                id="destination"
-                className="form-control"
-                placeholder="Enter Destination"
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-              />
-            </div>
-
-            <div className="col-md-3">
-              <label htmlFor="vehicleType" className="form-label">
-                Vehicle Type
-              </label>
-              <select
-                id="vehicleType"
-                className="form-select"
-                value={vehicleType}
-                onChange={(e) => setVehicleType(e.target.value)}
-              >
-                <option value="">Select</option>
-                <option value="bus">Bus</option>
-                <option value="cab">Cab</option>
-              </select>
-            </div>
-
-            <div className="col-md-3">
-              <label htmlFor="date" className="form-label">
-                Date
-              </label>
-              <input
-                type="date"
-                id="date"
-                className="form-control"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="mt-3 d-flex justify-content-end">
-            <button
-              className="btn btn-primary"
-              onClick={handleSearch}
-              disabled={loading}
-            >
-              {loading ? "Searching..." : "Search"}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="card mt-4">
-        <div className="card-body">
-          <h2>Available Routes</h2>
-          {loading && <p>Loading routes...</p>}
-          {availableRoutes.length === 0 && !loading && <p>No routes available.</p>}
-          {availableRoutes.length > 0 && (
-            <table className="table table-striped table-bordered">
-              <thead className="table-dark">
-                <tr>
-                  <th>ID</th>
-                  <th>Source</th>
-                  <th>Destination</th>
-                  <th>Date</th>
-                  <th>Vehicle Type</th>
-                  <th>Distance (km)</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {availableRoutes.map((route) => (
-                  <tr key={route.id}>
-                    <td>{route.id}</td>
-                    <td>{route.source}</td>
-                    <td>{route.destination}</td>
-                    <td>{route.date}</td>
-                    <td>{route.vehicleType}</td>
-                    <td>{route.distance}</td>
-                    <td>
-                      <button
-                        onClick={() => handleBook(route.id)}
-                        className="btn btn-success btn-sm"
-                      >
-                        Book
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </div>
-
-      {/* Modal for vehicle availability */}
-      {vehicleStatus && (
-        <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Vehicle Availability</h5>
-                <button type="button" className="btn-close" onClick={handleCloseModal}></button>
-              </div>
-              <div className="modal-body">
-                {vehicleStatus === "available" ? (
-                  <p>The vehicle is available. Do you want to proceed with booking?</p>
-                ) : (
-                  <p>Sorry, the vehicle is not available right now. Please try another route.</p>
-                )}
-              </div>
-              <div className="modal-footer">
-                {vehicleStatus === "available" && (
-                  <button className="btn btn-primary" onClick={handleProceed}>
-                    Proceed
-                  </button>
-                )}
-                <button className="btn btn-secondary" onClick={handleCloseModal}>
-                  Close
+        {vehicleStatus && (
+          <div>
+            {vehicleStatus === "available" ? (
+              <div>
+                <h3>Vehicle is available. Proceed to the next step.</h3>
+                <button className="btn btn-success" onClick={handleProceed}>
+                  Proceed
                 </button>
               </div>
-            </div>
+            ) : (
+              <h3>No vehicle available for the selected route.</h3>
+            )}
+            <button className="btn btn-danger" onClick={handleCloseModal}>
+              Close
+            </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

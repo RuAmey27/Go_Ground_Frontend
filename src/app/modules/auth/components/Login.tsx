@@ -140,7 +140,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../core/Auth.tsx";
-import axios from "axios";
+import axios from "../../../axiosConfig.ts";
 import clsx from "clsx";
 const API_URL = import.meta.env.VITE_APP_API_URL
 
