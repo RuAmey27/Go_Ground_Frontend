@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-const API_URL = import.meta.env.VITE_APP_API_URL;
+
 interface Route {
   id: number;
   source: string;
@@ -56,10 +56,10 @@ const AddVehicle: React.FC<AddVehicleProps> = ({ onClose, onAdd }) => {
     const fetchDriversAndRoutes = async () => {
       try {
         const [driversRes, routesRes] = await Promise.all([
-          axios.get<Driver[]>(`${API_URL}/admin/driver/all`, {
+          axios.get<Driver[]>("http://localhost:8080/admin/driver/all", {
             withCredentials: true,
           }),
-          axios.get<Route[]>(`${API_URL}/admin/routes/get`, {
+          axios.get<Route[]>("http://localhost:8080/admin/routes/get", {
             withCredentials: true,
           }),
         ]);
@@ -95,7 +95,7 @@ const AddVehicle: React.FC<AddVehicleProps> = ({ onClose, onAdd }) => {
       newErrors.pricePerKm = "Price per km must be greater than zero.";
     if (!vehicle.routeId) newErrors.routeId = "Please select a route.";
 
-    if (!vehicle.driverId) {
+    if (hasDriver && !vehicle.driverId) {
       newErrors.driverId = "Please select a driver.";
     }
 
@@ -105,15 +105,21 @@ const AddVehicle: React.FC<AddVehicleProps> = ({ onClose, onAdd }) => {
     }
 
     try {
-
-
+      let driverId: number;
+      if (hasDriver) {
         const driverRes = await axios.get(
-          `${API_URL}/admin/driver/get_id?name=${vehicle.driverId}`,
+          `http://localhost:8080/admin/driver/get_id?name=${vehicle.driverId}`,
           { withCredentials: true }
         );
-        const driverId = driverRes.data;
-        console.log(driverId);
 
+        driverId = driverRes.data;
+        console.log(driverId);
+      }
+
+      const driver_obj = await axios.get(
+          `http://localhost:8080/admin/driver/get/${vehicle.driverId}`,
+          { withCredentials: true }
+        );
 
       const [source, destination] = vehicle.routeId.split(" → ");
       if (!source || !destination) {
@@ -123,35 +129,29 @@ const AddVehicle: React.FC<AddVehicleProps> = ({ onClose, onAdd }) => {
       }
 
       const routeRes = await axios.get(
-        `${API_URL}/admin/routes/get_id?source=${source}&destination=${destination}`,
+        `http://localhost:8080/admin/routes/get_id?source=${source}&destination=${destination}`,
         { withCredentials: true }
       );
       const routeId = routeRes.data;
       console.log(routeId);
-
-
-      const routeobj = await axios.get(
-        `${API_URL}/admin/routes/find/${routeId}`,
+      const route_obj = await axios.get(
+        `http://localhost:8080/admin/routes/find/${routeId}`,
         { withCredentials: true }
       );
-      console.log(routeobj.data);
-      const driverobj = await axios.get(
-        `${API_URL}/admin/driver/get/${driverId}`,
-        { withCredentials: true }
-      );
-      console.log(driverobj.data);
 
+      console.log(route_obj);
+      console.log(driver_obj);
 
       const updatedVehicle = {
         ...vehicle,
-        driver: driverobj.data, // Ensuring driverId is string
-        route: routeobj.data,
+        driver: driver_obj, // Ensuring driverId is string
+        route: route_obj,
       };
 
       console.log(updatedVehicle);
       // Now fetch the vehicle ID from the backend after the vehicle is added
       const res = await axios.post(
-        `${API_URL}/admin/vehicle/add`,
+        "http://localhost:8080/admin/vehicle/add",
         updatedVehicle,
         { withCredentials: true }
       );

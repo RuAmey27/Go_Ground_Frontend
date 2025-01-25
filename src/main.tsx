@@ -45,7 +45,7 @@ if (container) {
         <AuthProvider>
           <Elements stripe={stripePromise}>
           <AppRoutes />
-          </Elements>
+          </Elements>  
         </AuthProvider>
       </MetronicI18nProvider>
       <ReactQueryDevtools initialIsOpen={false} />

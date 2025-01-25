@@ -1,4 +1,4 @@
-// import React from "react";
+import React from "react";
 import NavBar from "./NavBar";
 import FilterPanel from "./FilterPanel";
 import CruisePage from "./CruiseCard"; // Import the CruisePage component

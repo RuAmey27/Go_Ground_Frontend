@@ -1,4 +1,4 @@
-// import React from "react";
+import React from "react";
 import NavAir from "./NavAir";
 import FilterpanelAir from "./FilterpanelAir";
 import AirCard from "./AirCard";

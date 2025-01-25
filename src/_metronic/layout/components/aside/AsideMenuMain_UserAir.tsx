@@ -1,9 +1,9 @@
-//import { useIntl } from "react-intl";
-// import { KTIcon } from "../../../helpers";
-// import { AsideMenuItemWithSub } from "./AsideMenuItemWithSub";
+import { useIntl } from "react-intl";
+import { KTIcon } from "../../../helpers";
+import { AsideMenuItemWithSub } from "./AsideMenuItemWithSub";
 import { AsideMenuItem } from "./AsideMenuItem";
 export function AsideMenuMainUpdatedAirUser() {
-  //const intl = useIntl();
+  const intl = useIntl();
   return (
     <>
       <AsideMenuItem

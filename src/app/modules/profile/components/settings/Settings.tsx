@@ -1,4 +1,4 @@
-import  {useState} from 'react'
+import React, {useState} from 'react'
 import {defaultSettings, ISettings} from './SettingsModel'
 
 export function Settings() {

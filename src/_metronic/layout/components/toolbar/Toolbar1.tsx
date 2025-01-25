@@ -1,6 +1,6 @@
 
 import clsx from 'clsx'
-import  {FC} from 'react'
+import React, {FC} from 'react'
 import {KTIcon} from '../../../helpers'
 import {useLayout} from '../../core'
 import {DefaultTitle} from '../header/page-title/DefaultTitle'

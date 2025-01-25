@@ -1,5 +1,5 @@
 
-// import React from 'react'
+import React from 'react'
 import {KTIcon} from '../../../../_metronic/helpers'
 import {Card4} from '../../../../_metronic/partials/content/cards/Card4'
 
